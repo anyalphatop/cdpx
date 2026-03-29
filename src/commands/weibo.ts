@@ -18,7 +18,7 @@ weibo
   .description('hot search list')
   .action(async () => {
     const result = await new HotRunner().run({});
-    result.topics.forEach(topic => console.log(topic));
+    console.log(result);
   });
 
 export { weibo };
