@@ -2,6 +2,7 @@ import { PageRunner } from '../../page-runner.js';
 
 interface HotSearchResponse {
   data: {
+    hotgovs: Array<{ word: string }>;
     realtime: Array<{ word: string }>;
   };
 }
@@ -19,6 +20,7 @@ export class HotRunner extends PageRunner<object, string[]> {
   async ready(): Promise<void> {}
 
   async extract(): Promise<string[]> {
-    return this.responseData.data.realtime.map(item => item.word);
+    const { hotgovs, realtime } = this.responseData.data;
+    return [...hotgovs, ...realtime].map(item => item.word);
   }
 }
