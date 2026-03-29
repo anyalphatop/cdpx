@@ -26,6 +26,10 @@ export abstract class PageRunner<TParams, TResult> implements Runner<TParams, TR
     this.client = await CdpClient.open(url);
   }
 
+  protected async openBlankTab(): Promise<void> {
+    this.client = await CdpClient.open('about:blank');
+  }
+
   abstract navigate(): Promise<void>;
   abstract ready(): Promise<void>;
   abstract extract(): Promise<TResult>;

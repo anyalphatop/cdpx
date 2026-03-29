@@ -10,7 +10,7 @@ export class HotRunner extends PageRunner<object, string[]> {
   private responseData!: HotSearchResponse;
 
   async navigate(): Promise<void> {
-    await this.openTab('about:blank');
+    await this.openBlankTab();
     const promise = this.client.captureResponse('/ajax/side/hotSearch');
     await this.client.navigateTo('https://weibo.com/hot/search');
     this.responseData = await promise as HotSearchResponse;
