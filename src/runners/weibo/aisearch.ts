@@ -34,7 +34,7 @@ export class AisearchRunner extends PageRunner<AisearchParams, AisearchResult> {
   }
 
   async extract(): Promise<AisearchResult> {
-    const content = await this.client.clickAndCaptureCopy(`
+    const content = await this.client.captureClipboard(`
       Array.from(document.querySelectorAll('a.action_btn_wrap'))
         .find(el => el.innerText?.trim().includes('复制'))
         .click()

@@ -43,7 +43,7 @@ export class CdpClient {
     });
   }
 
-  async clickAndCaptureCopy(clickExpression: string): Promise<string> {
+  async captureClipboard(clickExpression: string): Promise<string> {
     await this.eval(`
       window.__copiedText = null;
       document.addEventListener('copy', (e) => {
