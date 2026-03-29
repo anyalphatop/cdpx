@@ -84,7 +84,7 @@ export class CdpClient {
     await this.send('Page.navigate', { url });
   }
 
-  async captureResponse(urlPart: string): Promise<unknown> {
+  async captureJsonResponse(urlPart: string): Promise<unknown> {
     await this.send('Network.enable');
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => {
