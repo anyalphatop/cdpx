@@ -7,6 +7,7 @@ export interface AisearchParams {
 
 export interface AisearchResult {
   query: string;
+  content: string;
 }
 
 export class AisearchRunner extends PageRunner<AisearchParams, AisearchResult> {
@@ -32,8 +33,39 @@ export class AisearchRunner extends PageRunner<AisearchParams, AisearchResult> {
     throw new Error('Timeout: 复制 button did not appear');
   }
 
+  async interact(): Promise<void> {
+    await this.client.eval(`
+      window.__copiedText = null;
+      document.addEventListener('copy', (e) => {
+        const sel = window.getSelection()?.toString();
+        window.__copiedText = sel || e.clipboardData?.getData('text/plain') || null;
+      }, true);
+      const _origExec = document.execCommand.bind(document);
+      document.execCommand = (cmd, ...args) => {
+        if (cmd === 'copy') {
+          window.__copiedText = window.getSelection()?.toString() || window.__copiedText;
+        }
+        return _origExec(cmd, ...args);
+      };
+      if (navigator.clipboard?.writeText) {
+        const _origWrite = navigator.clipboard.writeText.bind(navigator.clipboard);
+        navigator.clipboard.writeText = (text) => {
+          window.__copiedText = text;
+          return _origWrite(text).catch(() => {});
+        };
+      }
+      Array.from(document.querySelectorAll('a.action_btn_wrap'))
+        .find(el => el.innerText?.trim().includes('复制'))
+        .click();
+    `);
+  }
+
+  async settle(): Promise<void> {
+    await new Promise(r => setTimeout(r, 600));
+  }
+
   async extract(): Promise<AisearchResult> {
-    await new Promise(r => setTimeout(r, 5000));
-    return { query: this.params.query };
+    const content = await this.client.eval(`window.__copiedText`) as string;
+    return { query: this.params.query, content };
   }
 }
