@@ -16,9 +16,13 @@ export abstract class PageRunner<TParams, TResult> implements Runner<TParams, TR
       await this.settle();
       return await this.extract();
     } finally {
-      this.cdp?.close();
-      if (this.tabId) await closeTab(this.tabId).catch(() => {});
+      await this.dispose();
     }
+  }
+
+  async dispose(): Promise<void> {
+    this.cdp?.close();
+    if (this.tabId) await closeTab(this.tabId).catch(() => {});
   }
 
   protected async openTab(url: string): Promise<void> {
