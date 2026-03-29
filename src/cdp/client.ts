@@ -25,6 +25,57 @@ export class CdpClient {
     return new CdpClient(tab.id, ws);
   }
 
+  private send(method: string, params: Record<string, unknown> = {}): Promise<unknown> {
+    const id = this._seq++;
+    return new Promise((resolve, reject) => {
+      const handler = (raw: WebSocket.RawData) => {
+        const msg = JSON.parse(raw.toString()) as { id: number; result?: unknown; error?: { message: string } };
+        if (msg.id !== id) return;
+        this.ws.off('message', handler);
+        if (msg.error) reject(new Error(msg.error.message));
+        else resolve(msg.result);
+      };
+      this.ws.on('message', handler);
+      this.ws.send(JSON.stringify({ id, method, params }));
+    });
+  }
+
+  async waitForNetworkIdle(idleWindow = 500): Promise<void> {
+    await this.send('Network.enable');
+    let inflight = 0;
+    return new Promise((resolve, reject) => {
+      const overallTimer = setTimeout(() => {
+        cleanup();
+        reject(new Error('Timeout: network did not become idle'));
+      }, config.cdp.readyTimeout);
+      let idleTimer: ReturnType<typeof setTimeout> | null = null;
+      const scheduleIdleCheck = () => {
+        if (inflight === 0) {
+          if (idleTimer) clearTimeout(idleTimer);
+          idleTimer = setTimeout(() => { cleanup(); resolve(); }, idleWindow);
+        }
+      };
+      const onMessage = (raw: WebSocket.RawData) => {
+        const msg = JSON.parse(raw.toString()) as { method?: string };
+        if (!msg.method) return;
+        if (msg.method === 'Network.requestWillBeSent') {
+          inflight++;
+          if (idleTimer) { clearTimeout(idleTimer); idleTimer = null; }
+        } else if (msg.method === 'Network.loadingFinished' || msg.method === 'Network.loadingFailed') {
+          inflight = Math.max(0, inflight - 1);
+          scheduleIdleCheck();
+        }
+      };
+      const cleanup = () => {
+        clearTimeout(overallTimer);
+        if (idleTimer) clearTimeout(idleTimer);
+        this.ws.off('message', onMessage);
+      };
+      this.ws.on('message', onMessage);
+      scheduleIdleCheck();
+    });
+  }
+
   eval(expression: string): Promise<unknown> {
     const id = this._seq++;
     return new Promise((resolve, reject) => {
