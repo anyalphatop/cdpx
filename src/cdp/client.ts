@@ -9,6 +9,10 @@ export class CdpClient {
     private readonly ws: WebSocket,
   ) {}
 
+  static async openBlank(): Promise<CdpClient> {
+    return CdpClient.open('about:blank');
+  }
+
   static async open(url: string): Promise<CdpClient> {
     const { host, port, timeout } = config.cdp;
     const response = await fetch(
