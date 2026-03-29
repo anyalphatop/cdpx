@@ -1,4 +1,5 @@
 import { Command } from 'commander';
+import { AisearchRunner } from '../runners/weibo/aisearch.js';
 
 const weibo = new Command('weibo').description('weibo.com');
 
@@ -6,8 +7,9 @@ weibo
   .command('aisearch')
   .description('AI search')
   .argument('<query>', 'search query')
-  .action((query: string) => {
-    console.log(`aisearch: ${query}`);
+  .action(async (query: string) => {
+    const result = await new AisearchRunner().run({ query });
+    console.log(result);
   });
 
 export { weibo };
