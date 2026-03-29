@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { AiSearchRunner } from '../runners/weibo/aiSearch.js';
+import { AiSearchRunner } from '../runners/weibo/ai-search.js';
 import { HotRunner } from '../runners/weibo/hot.js';
 
 const weibo = new Command('weibo').description('weibo.com');
