@@ -11,6 +11,7 @@ export interface AisearchResult {
 }
 
 export class AisearchRunner extends PageRunner<AisearchParams, AisearchResult> {
+  private content!: string;
   async navigate(): Promise<void> {
     const url = `https://s.weibo.com/aisearch?q=${encodeURIComponent(this.params.query)}&Refer=aisearch_aisearch`;
     await this.openTab(url);
