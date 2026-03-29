@@ -5,7 +5,11 @@ export interface AisearchParams {
   query: string;
 }
 
-export class AisearchRunner extends PageRunner<AisearchParams, string> {
+export interface AisearchResult {
+  answer: string;
+}
+
+export class AisearchRunner extends PageRunner<AisearchParams, AisearchResult> {
   async navigate(): Promise<void> {
     const url = `https://s.weibo.com/aisearch?q=${encodeURIComponent(this.params.query)}&Refer=aisearch_aisearch`;
     await this.openTab(url);
@@ -28,11 +32,12 @@ export class AisearchRunner extends PageRunner<AisearchParams, string> {
     throw new Error('Timeout: 复制 button did not appear');
   }
 
-  async extract(): Promise<string> {
-    return this.client.captureClipboard(`
+  async extract(): Promise<AisearchResult> {
+    const answer = await this.client.captureClipboard(`
       Array.from(document.querySelectorAll('a.action_btn_wrap'))
         .find(el => el.innerText?.trim().includes('复制'))
         .click()
     `);
+    return { answer };
   }
 }
