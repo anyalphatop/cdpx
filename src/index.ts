@@ -3,6 +3,7 @@
 import { Command } from 'commander';
 import { createRequire } from 'module';
 import { ping } from './commands/ping.js';
+import { tabs } from './commands/tabs.js';
 import { weibo } from './commands/weibo.js';
 
 const require = createRequire(import.meta.url);
@@ -16,6 +17,7 @@ program
   .version(version);
 
 program.addCommand(ping);
+program.addCommand(tabs);
 program.addCommand(weibo);
 
 program.parse();
