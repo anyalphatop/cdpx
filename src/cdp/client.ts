@@ -43,6 +43,28 @@ export class CdpClient {
     });
   }
 
+  async clickAndCaptureCopy(clickExpression: string): Promise<string> {
+    await this.eval(`
+      window.__copiedText = null;
+      document.addEventListener('copy', (e) => {
+        const sel = window.getSelection()?.toString();
+        window.__copiedText = sel || e.clipboardData?.getData('text/plain') || null;
+      }, true);
+      const _origExec = document.execCommand.bind(document);
+      document.execCommand = (cmd, ...args) => {
+        if (cmd === 'copy') window.__copiedText = window.getSelection()?.toString() || window.__copiedText;
+        return _origExec(cmd, ...args);
+      };
+      if (navigator.clipboard?.writeText) {
+        const _orig = navigator.clipboard.writeText.bind(navigator.clipboard);
+        navigator.clipboard.writeText = (text) => { window.__copiedText = text; return _orig(text).catch(() => {}); };
+      }
+      (${clickExpression});
+    `);
+    await new Promise(r => setTimeout(r, config.cdp.copyDelay));
+    return await this.eval(`window.__copiedText`) as string;
+  }
+
   async close(): Promise<void> {
     this.ws.close();
     const { host, port, timeout } = config.cdp;
