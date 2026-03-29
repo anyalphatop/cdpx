@@ -18,7 +18,7 @@ export class AisearchRunner extends PageRunner<AisearchParams, AisearchResult> {
     const timeout = 60_000;
     const deadline = Date.now() + timeout;
     while (Date.now() < deadline) {
-      const visible = await this.eval(`
+      const visible = await this.client.eval(`
         (() => {
           const btn = Array.from(document.querySelectorAll('a.action_btn_wrap'))
             .find(el => el.innerText?.trim().includes('复制'));
