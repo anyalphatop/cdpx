@@ -1,5 +1,5 @@
 {
-  "name": "cdpx",
+  "name": "@anyalpha/cdpx",
   "version": "1.0.0",
   "description": "Make any website programmable via Chrome CDP.",
   "main": "dist/index.js",
@@ -10,15 +10,31 @@
   "scripts": {
     "build": "tsc",
     "dev": "ts-node --esm src/index.ts",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "prepublishOnly": "npm run build"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/anyalphatop/cdpx.git"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "cdp",
+    "chrome",
+    "automation",
+    "cli",
+    "devtools"
+  ],
+  "author": "leaderman",
   "license": "ISC",
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "bugs": {
     "url": "https://github.com/anyalphatop/cdpx/issues"
   },
