@@ -76,6 +76,42 @@ export class CdpClient {
     });
   }
 
+  async navigateTo(url: string): Promise<void> {
+    await this.send('Page.navigate', { url });
+  }
+
+  async captureResponse(urlPart: string): Promise<unknown> {
+    await this.send('Network.enable');
+    return new Promise((resolve, reject) => {
+      const timer = setTimeout(() => {
+        cleanup();
+        reject(new Error(`Timeout: no response matching ${urlPart}`));
+      }, config.cdp.readyTimeout);
+      const pending = new Set<string>();
+      const onMessage = async (raw: WebSocket.RawData) => {
+        const msg = JSON.parse(raw.toString()) as { method?: string; params?: Record<string, unknown> };
+        if (!msg.method) return;
+        if (msg.method === 'Network.requestWillBeSent') {
+          const p = msg.params as { requestId: string; request: { url: string } };
+          if (p.request.url.includes(urlPart)) pending.add(p.requestId);
+        } else if (msg.method === 'Network.loadingFinished') {
+          const p = msg.params as { requestId: string };
+          if (pending.has(p.requestId)) {
+            cleanup();
+            try {
+              const result = await this.send('Network.getResponseBody', { requestId: p.requestId });
+              const r = result as { body: string; base64Encoded: boolean };
+              const text = r.base64Encoded ? Buffer.from(r.body, 'base64').toString() : r.body;
+              resolve(JSON.parse(text));
+            } catch (e) { reject(e); }
+          }
+        }
+      };
+      const cleanup = () => { clearTimeout(timer); this.ws.off('message', onMessage); };
+      this.ws.on('message', onMessage);
+    });
+  }
+
   eval(expression: string): Promise<unknown> {
     const id = this._seq++;
     return new Promise((resolve, reject) => {

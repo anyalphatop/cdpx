@@ -1,32 +1,24 @@
 import { PageRunner } from '../../page-runner.js';
-import { config } from '../../config.js';
+
+interface HotSearchResponse {
+  data: {
+    realtime: Array<{ word: string }>;
+  };
+}
 
 export class HotRunner extends PageRunner<object, string[]> {
+  private responseData!: HotSearchResponse;
+
   async navigate(): Promise<void> {
-    await this.openTab('https://weibo.com/hot/search');
+    await this.openTab('about:blank');
+    const promise = this.client.captureResponse('/ajax/side/hotSearch');
+    await this.client.navigateTo('https://weibo.com/hot/search');
+    this.responseData = await promise as HotSearchResponse;
   }
 
-  async ready(): Promise<void> {
-    await this.client.waitForNetworkIdle();
-    const deadline = Date.now() + config.cdp.readyTimeout;
-    while (Date.now() < deadline) {
-      const count = await this.client.eval(
-        `document.querySelectorAll('a[href*="s.weibo.com/weibo?q="]').length`
-      );
-      if ((count as number) > 0) return;
-      await new Promise(r => setTimeout(r, config.cdp.pollInterval));
-    }
-    throw new Error('Timeout: hot search list did not appear');
-  }
+  async ready(): Promise<void> {}
 
   async extract(): Promise<string[]> {
-    const json = await this.client.eval(`
-      JSON.stringify(
-        Array.from(document.querySelectorAll('a[href*="s.weibo.com/weibo?q="]'))
-          .map(el => el.innerText?.trim())
-          .filter(Boolean)
-      )
-    `);
-    return JSON.parse(json as string);
+    return this.responseData.data.realtime.map(item => item.word);
   }
 }
