@@ -16,8 +16,7 @@ export class AisearchRunner extends PageRunner<AisearchParams, AisearchResult> {
   }
 
   async ready(): Promise<void> {
-    const timeout = 60_000;
-    const deadline = Date.now() + timeout;
+    const deadline = Date.now() + config.cdp.readyTimeout;
     while (Date.now() < deadline) {
       const visible = await this.client.eval(`
         (() => {
