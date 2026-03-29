@@ -5,10 +5,9 @@ import type { TabsParams, Tab } from './runners/tabs/tabs.js';
 import { AiSearchRunner } from './runners/weibo/ai-search.js';
 import type { AiSearchParams } from './runners/weibo/ai-search.js';
 import { HotRunner } from './runners/weibo/hot.js';
-import type { HotResult } from './runners/weibo/hot.js';
 
 
-export type { HotResult, Tab };
+export type { Tab };
 
 export const cdpx = {
   ping: (params: PingParams) => new PingRunner().run(params),

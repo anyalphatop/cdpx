@@ -7,11 +7,7 @@ interface HotSearchResponse {
   };
 }
 
-export interface HotResult {
-  topics: string[];
-}
-
-export class HotRunner extends PageRunner<object, HotResult> {
+export class HotRunner extends PageRunner<object, string[]> {
   private responseData!: HotSearchResponse;
 
   async navigate(): Promise<void> {
@@ -23,8 +19,8 @@ export class HotRunner extends PageRunner<object, HotResult> {
 
   async ready(): Promise<void> {}
 
-  async extract(): Promise<HotResult> {
+  async extract(): Promise<string[]> {
     const { hotgovs, realtime } = this.responseData.data;
-    return { topics: [...hotgovs, ...realtime].map(item => item.word) };
+    return [...hotgovs, ...realtime].map(item => item.word);
   }
 }
