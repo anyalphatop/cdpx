@@ -2,6 +2,7 @@
 
 import { Command } from 'commander';
 import { createRequire } from 'module';
+import { weibo } from './commands/weibo.js';
 
 const require = createRequire(import.meta.url);
 const { version } = require('../package.json') as { version: string };
@@ -12,5 +13,7 @@ program
   .name('cdpx')
   .description('Make any website programmable via Chrome CDP.')
   .version(version);
+
+program.addCommand(weibo);
 
 program.parse();
