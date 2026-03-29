@@ -33,6 +33,7 @@ export class AisearchRunner extends PageRunner<AisearchParams, AisearchResult> {
   }
 
   async extract(): Promise<AisearchResult> {
+    await new Promise(r => setTimeout(r, 5000));
     return { query: this.params.query };
   }
 }
