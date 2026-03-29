@@ -1,23 +1,26 @@
 import type { Runner } from './runner.js';
 
 export abstract class PageRunner<TParams, TResult> implements Runner<TParams, TResult> {
+  protected params!: TParams;
+
   async run(params: TParams): Promise<TResult> {
-    await this.navigate(params);
-    await this.ready(params);
-    await this.interact(params);
-    await this.settle(params);
-    return this.extract(params);
+    this.params = params;
+    await this.navigate();
+    await this.ready();
+    await this.interact();
+    await this.settle();
+    return this.extract();
   }
 
-  abstract navigate(params: TParams): Promise<void>;
-  abstract ready(params: TParams): Promise<void>;
-  abstract extract(params: TParams): Promise<TResult>;
+  abstract navigate(): Promise<void>;
+  abstract ready(): Promise<void>;
+  abstract extract(): Promise<TResult>;
 
-  interact(_params: TParams): Promise<void> {
+  interact(): Promise<void> {
     return Promise.resolve();
   }
 
-  settle(_params: TParams): Promise<void> {
+  settle(): Promise<void> {
     return Promise.resolve();
   }
 }

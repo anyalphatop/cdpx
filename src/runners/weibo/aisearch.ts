@@ -9,15 +9,15 @@ export interface AisearchResult {
 }
 
 export class AisearchRunner extends PageRunner<AisearchParams, AisearchResult> {
-  async navigate(_params: AisearchParams): Promise<void> {}
+  async navigate(): Promise<void> {}
 
-  async ready(_params: AisearchParams): Promise<void> {}
+  async ready(): Promise<void> {}
 
-  async interact(_params: AisearchParams): Promise<void> {}
+  async interact(): Promise<void> {}
 
-  async settle(_params: AisearchParams): Promise<void> {}
+  async settle(): Promise<void> {}
 
-  async extract({ query }: AisearchParams): Promise<AisearchResult> {
-    return { query };
+  async extract(): Promise<AisearchResult> {
+    return { query: this.params.query };
   }
 }
