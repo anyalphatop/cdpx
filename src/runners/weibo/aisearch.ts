@@ -1,4 +1,5 @@
 import { PageRunner } from '../../page-runner.js';
+import { config } from '../../config.js';
 
 export interface AisearchParams {
   query: string;
@@ -27,7 +28,7 @@ export class AisearchRunner extends PageRunner<AisearchParams, AisearchResult> {
         })()
       `);
       if (visible) return;
-      await new Promise(r => setTimeout(r, 500));
+      await new Promise(r => setTimeout(r, config.cdp.pollInterval));
     }
     throw new Error('Timeout: 复制 button did not appear');
   }
