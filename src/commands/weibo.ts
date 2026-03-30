@@ -1,4 +1,5 @@
 import { Command } from 'commander';
+import { readFileSync } from 'fs';
 import { AiSearchRunner } from '../runners/weibo/ai-search.js';
 import { HotRunner } from '../runners/weibo/hot.js';
 import { PostRunner } from '../runners/weibo/post.js';
@@ -26,10 +27,16 @@ weibo
   .command('post')
   .description('post a weibo')
   .option('-t, --text <text>', 'weibo text content')
+  .option('-f, --file <path>', 'text file path, mutually exclusive with --text')
   .option('-i, --image <paths...>', 'image file paths')
   .option('-o, --topic <topics...>', 'topics to append, e.g. -o 科技 -o AI')
-  .action(async (options: { text?: string; image?: string[]; topic?: string[] }) => {
-    await new PostRunner().run({ text: options.text, images: options.image, topics: options.topic });
+  .action(async (options: { text?: string; file?: string; image?: string[]; topic?: string[] }) => {
+    if (options.text && options.file) {
+      console.error('Error: --text and --file are mutually exclusive');
+      process.exit(1);
+    }
+    const text = options.file ? readFileSync(options.file, 'utf-8') : options.text;
+    await new PostRunner().run({ text, images: options.image, topics: options.topic });
   });
 
 export { weibo };
