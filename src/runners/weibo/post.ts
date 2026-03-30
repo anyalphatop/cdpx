@@ -13,8 +13,29 @@ export class PostRunner extends PageRunner<PostParams, void> {
   }
 
   async ready(): Promise<void> {
+    // Click textarea to expand the compose toolbar
     await this.client.eval(`document.querySelector('textarea').click()`);
     await new Promise(r => setTimeout(r, 500));
+
+    // Clear any existing text
+    await this.client.eval(`(function() {
+      const ta = document.querySelector('textarea');
+      const setter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value').set;
+      setter.call(ta, '');
+      ta.dispatchEvent(new Event('input', { bubbles: true }));
+    })()`);
+
+    // Remove any existing images by clicking their delete buttons one by one
+    let deleted = true;
+    while (deleted) {
+      deleted = await this.client.eval(`(function() {
+        const btn = document.querySelector('[class*=picbed] [title="删除"]');
+        if (!btn) return false;
+        btn.click();
+        return true;
+      })()`) as boolean;
+      if (deleted) await new Promise(r => setTimeout(r, 300));
+    }
   }
 
   async interact(): Promise<void> {
