@@ -1,7 +1,7 @@
 import { PageRunner } from '../../page-runner.js';
 
 export interface PostParams {
-  text: string;
+  text?: string;
   images?: string[];
 }
 

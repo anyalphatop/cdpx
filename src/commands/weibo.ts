@@ -25,9 +25,9 @@ weibo
 weibo
   .command('post')
   .description('post a weibo')
-  .requiredOption('-t, --text <text>', 'weibo text content')
+  .option('-t, --text <text>', 'weibo text content')
   .option('-i, --image <paths...>', 'image file paths')
-  .action(async (options: { text: string; image?: string[] }) => {
+  .action(async (options: { text?: string; image?: string[] }) => {
     await new PostRunner().run({ text: options.text, images: options.image });
   });
 
