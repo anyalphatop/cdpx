@@ -162,6 +162,13 @@ export class CdpClient {
     return await this.eval(`window.__copiedText`) as string;
   }
 
+  async setFileInputFiles(selector: string, files: string[]): Promise<void> {
+    const { root } = await this.send('DOM.getDocument') as { root: { nodeId: number } };
+    const { nodeId } = await this.send('DOM.querySelector', { nodeId: root.nodeId, selector }) as { nodeId: number };
+    if (!nodeId) throw new Error(`Element not found: ${selector}`);
+    await this.send('DOM.setFileInputFiles', { nodeId, files });
+  }
+
   async close(): Promise<void> {
     this.ws.close();
     const { host, port, timeout } = config.cdp;
