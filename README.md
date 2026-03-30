@@ -188,3 +188,39 @@ Returns a string array of trending topic names.
 ["Topic A", "Topic B", "Topic C"]
 ```
 
+#### `weibo post`
+
+Post a new Weibo. At least one of `--text`, `--file`, or `--image` is required.
+
+```bash
+cdpx weibo post [options]
+```
+
+**Options:**
+
+| Option | Description |
+|--------|-------------|
+| `-t, --text <text>` | Weibo text content |
+| `-f, --file <path>` | Path to a text file whose content will be used as the post body. Mutually exclusive with `--text` |
+| `-i, --image <paths...>` | One or more image file paths |
+| `-o, --topic <topics...>` | One or more topics to append. Each topic is formatted as `#topic#` and appended on a new line after the text |
+
+**Example:**
+
+```bash
+# Text only
+cdpx weibo post -t "Hello world"
+
+# Text with topics
+cdpx weibo post -t "Hello world" -o Technology -o AI
+
+# Text from file with image
+cdpx weibo post -f /path/to/content.txt -i /path/to/image.jpg
+
+# Image only
+cdpx weibo post -i /path/to/image.jpg
+
+# Multiple images with topics
+cdpx weibo post -i /path/to/a.jpg /path/to/b.jpg -o Travel
+```
+

@@ -187,3 +187,39 @@ cdpx weibo hot
 ```json
 ["话题A", "话题B", "话题C"]
 ```
+
+#### `weibo post`
+
+发布一条微博。`--text`、`--file`、`--image` 三者至少需要指定一项。
+
+```bash
+cdpx weibo post [options]
+```
+
+**选项：**
+
+| 选项 | 说明 |
+|------|------|
+| `-t, --text <text>` | 微博文本内容 |
+| `-f, --file <path>` | 文本文件路径，文件内容将作为微博正文。与 `--text` 互斥 |
+| `-i, --image <paths...>` | 一张或多张图片的文件路径 |
+| `-o, --topic <topics...>` | 一个或多个话题，每个话题格式为 `#话题#`，追加在正文末尾另起一行 |
+
+**示例：**
+
+```bash
+# 纯文字
+cdpx weibo post -t "今天天气不错"
+
+# 文字加话题
+cdpx weibo post -t "今天天气不错" -o 生活 -o 日记
+
+# 从文件读取正文并带图片
+cdpx weibo post -f /path/to/content.txt -i /path/to/image.jpg
+
+# 纯图片
+cdpx weibo post -i /path/to/image.jpg
+
+# 多张图片加话题
+cdpx weibo post -i /path/to/a.jpg /path/to/b.jpg -o 摄影
+```
