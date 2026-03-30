@@ -8,7 +8,7 @@ probe
   .option('--idle-window <ms>', 'network idle window in milliseconds', parseInt)
   .action(async (url: string, options: { idleWindow?: number }) => {
     const result = await new ProbeRunner().run({ url, idleWindow: options.idleWindow });
-    console.log(`Network idle after ${result.networkIdleMs}ms`);
+    console.log(result.networkIdleMs);
   });
 
 export { probe };
