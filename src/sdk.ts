@@ -1,17 +1,18 @@
 import { PingRunner } from './runners/ping/ping.js';
-import type { PingParams } from './runners/ping/ping.js';
+import type { PingResult } from './runners/ping/ping.js';
 import { TabsRunner } from './runners/tabs/tabs.js';
-import type { TabsParams, Tab } from './runners/tabs/tabs.js';
+import type { Tab } from './runners/tabs/tabs.js';
 import { AiSearchRunner } from './runners/weibo/ai-search.js';
 import type { AiSearchParams } from './runners/weibo/ai-search.js';
 import { HotRunner } from './runners/weibo/hot.js';
+import { config } from './config.js';
 
-
-export type { Tab };
+export { config };
+export type { PingResult, Tab };
 
 export const cdpx = {
-  ping: (params: PingParams) => new PingRunner().run(params),
-  tabs: (params: TabsParams) => new TabsRunner().run(params),
+  ping: () => new PingRunner().run(),
+  tabs: () => new TabsRunner().run(),
   weibo: {
     aisearch: (params: AiSearchParams) => new AiSearchRunner().run(params),
     hot: () => new HotRunner().run({}),

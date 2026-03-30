@@ -1,10 +1,5 @@
 import type { Runner } from '../../runner.js';
-
-export interface PingParams {
-  host: string;
-  port: number;
-  timeout: number;
-}
+import { config } from '../../config.js';
 
 export interface PingResult {
   connected: boolean;
@@ -14,8 +9,9 @@ export interface PingResult {
   error?: string;
 }
 
-export class PingRunner implements Runner<PingParams, PingResult> {
-  async run({ host, port, timeout }: PingParams): Promise<PingResult> {
+export class PingRunner implements Runner<void, PingResult> {
+  async run(): Promise<PingResult> {
+    const { host, port, timeout } = config.cdp;
     const url = `http://${host}:${port}/json/version`;
 
     try {

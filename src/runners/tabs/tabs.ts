@@ -1,10 +1,5 @@
 import type { Runner } from '../../runner.js';
-
-export interface TabsParams {
-  host: string;
-  port: number;
-  timeout: number;
-}
+import { config } from '../../config.js';
 
 export interface Tab {
   id: string;
@@ -13,8 +8,9 @@ export interface Tab {
   type: string;
 }
 
-export class TabsRunner implements Runner<TabsParams, Tab[]> {
-  async run({ host, port, timeout }: TabsParams): Promise<Tab[]> {
+export class TabsRunner implements Runner<void, Tab[]> {
+  async run(): Promise<Tab[]> {
+    const { host, port, timeout } = config.cdp;
     const response = await fetch(`http://${host}:${port}/json/list`, {
       signal: AbortSignal.timeout(timeout),
     });
