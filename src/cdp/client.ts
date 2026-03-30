@@ -44,9 +44,11 @@ export class CdpClient {
     });
   }
 
-  async waitForNetworkIdle(idleWindow = 500): Promise<void> {
+  async waitForNetworkIdle(idleWindow = 500, excludePatterns: (string | RegExp)[] = []): Promise<void> {
     await this.send('Network.enable');
-    let inflight = 0;
+    const isExcluded = (url: string) =>
+      excludePatterns.some(p => typeof p === 'string' ? url.includes(p) : p.test(url));
+    const inflight = new Set<string>();
     return new Promise((resolve, reject) => {
       const overallTimer = setTimeout(() => {
         cleanup();
@@ -54,19 +56,23 @@ export class CdpClient {
       }, config.cdp.readyTimeout);
       let idleTimer: ReturnType<typeof setTimeout> | null = null;
       const scheduleIdleCheck = () => {
-        if (inflight === 0) {
+        if (inflight.size === 0) {
           if (idleTimer) clearTimeout(idleTimer);
           idleTimer = setTimeout(() => { cleanup(); resolve(); }, idleWindow);
         }
       };
       const onMessage = (raw: WebSocket.RawData) => {
-        const msg = JSON.parse(raw.toString()) as { method?: string };
+        const msg = JSON.parse(raw.toString()) as { method?: string; params?: Record<string, unknown> };
         if (!msg.method) return;
         if (msg.method === 'Network.requestWillBeSent') {
-          inflight++;
-          if (idleTimer) { clearTimeout(idleTimer); idleTimer = null; }
+          const p = msg.params as { requestId: string; request: { url: string } };
+          if (!isExcluded(p.request.url)) {
+            inflight.add(p.requestId);
+            if (idleTimer) { clearTimeout(idleTimer); idleTimer = null; }
+          }
         } else if (msg.method === 'Network.loadingFinished' || msg.method === 'Network.loadingFailed') {
-          inflight = Math.max(0, inflight - 1);
+          const p = msg.params as { requestId: string };
+          inflight.delete(p.requestId);
           scheduleIdleCheck();
         }
       };
