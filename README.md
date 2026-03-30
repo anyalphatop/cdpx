@@ -58,3 +58,19 @@ Returns an array of tab objects.
 | `url` | `string` | Tab URL |
 | `type` | `string` | Tab type (e.g. `page`, `background_page`) |
 
+### `weibo hot`
+
+Fetch the current Weibo hot search list.
+
+```bash
+cdpx weibo hot
+```
+
+**Result:**
+
+Returns a string array of trending topic names.
+
+```json
+["Topic A", "Topic B", "Topic C"]
+```
+
