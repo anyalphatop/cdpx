@@ -44,7 +44,7 @@ export class CdpClient {
     });
   }
 
-  async waitForNetworkIdle(idleWindow = 500, excludePatterns: (string | RegExp)[] = []): Promise<void> {
+  async waitForNetworkIdle(idleWindow = config.cdp.pollInterval, excludePatterns: (string | RegExp)[] = []): Promise<void> {
     await this.send('Network.enable');
     const isExcluded = (url: string) =>
       excludePatterns.some(p => typeof p === 'string' ? url.includes(p) : p.test(url));
