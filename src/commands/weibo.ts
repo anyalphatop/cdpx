@@ -27,8 +27,9 @@ weibo
   .description('post a weibo')
   .option('-t, --text <text>', 'weibo text content')
   .option('-i, --image <paths...>', 'image file paths')
-  .action(async (options: { text?: string; image?: string[] }) => {
-    await new PostRunner().run({ text: options.text, images: options.image });
+  .option('-o, --topic <topics...>', 'topics to append, e.g. -o 科技 -o AI')
+  .action(async (options: { text?: string; image?: string[]; topic?: string[] }) => {
+    await new PostRunner().run({ text: options.text, images: options.image, topics: options.topic });
   });
 
 export { weibo };

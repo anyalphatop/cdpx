@@ -3,6 +3,7 @@ import { PageRunner } from '../../page-runner.js';
 export interface PostParams {
   text?: string;
   images?: string[];
+  topics?: string[];
 }
 
 export class PostRunner extends PageRunner<PostParams, void> {
@@ -18,14 +19,19 @@ export class PostRunner extends PageRunner<PostParams, void> {
   }
 
   async interact(): Promise<void> {
-    const { text, images } = this.params;
+    const { text, images, topics } = this.params;
 
-    if (text) {
+    const fullText = [
+      text ?? '',
+      topics && topics.length > 0 ? topics.map(t => `#${t}#`).join(' ') : '',
+    ].filter(Boolean).join('\n');
+
+    if (fullText) {
       await this.client.eval(`
         (function() {
           const ta = document.querySelector('textarea');
           const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value').set;
-          nativeInputValueSetter.call(ta, ${JSON.stringify(text)});
+          nativeInputValueSetter.call(ta, ${JSON.stringify(fullText)});
           ta.dispatchEvent(new Event('input', { bubbles: true }));
         })()
       `);
