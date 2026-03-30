@@ -35,6 +35,10 @@ weibo
       console.error('Error: --text and --file are mutually exclusive');
       process.exit(1);
     }
+    if (!options.text && !options.file && !options.image) {
+      console.error('Error: at least one of --text, --file, or --image is required');
+      process.exit(1);
+    }
     const text = options.file ? readFileSync(options.file, 'utf-8') : options.text;
     await new PostRunner().run({ text, images: options.image, topics: options.topic });
   });
