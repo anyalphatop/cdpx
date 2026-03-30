@@ -4,6 +4,7 @@ import { Command } from 'commander';
 import { createRequire } from 'module';
 import { ping } from './commands/ping.js';
 import { probe } from './commands/probe.js';
+import { read } from './commands/read.js';
 import { tabs } from './commands/tabs.js';
 import { weibo } from './commands/weibo.js';
 
@@ -19,6 +20,7 @@ program
 
 program.addCommand(ping);
 program.addCommand(probe);
+program.addCommand(read);
 program.addCommand(tabs);
 program.addCommand(weibo);
 

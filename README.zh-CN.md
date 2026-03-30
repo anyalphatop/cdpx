@@ -93,6 +93,51 @@ cdpx probe https://weibo.com --idle-window 1000
 1823
 ```
 
+### `read`
+
+使用 Readability 获取指定页面的文章内容。
+
+```bash
+cdpx read <url>
+```
+
+**参数：**
+
+| 参数 | 说明 |
+|------|------|
+| `url` | 要读取的目标 URL |
+
+**选项：**
+
+| 选项 | 说明 | 默认值 |
+|------|------|--------|
+| `--idle-window <ms>` | 判定 network idle 的静默窗口（毫秒） | `CDPX_NETWORK_IDLE_WINDOW` 或 `500` |
+| `--settle <ms>` | network idle 之后的额外等待时间（毫秒） | `0` |
+
+**示例：**
+
+```bash
+cdpx read https://example.com/article
+cdpx read https://example.com/article --settle 500
+```
+
+**返回结果：**
+
+返回一个 JSON 对象，包含以下字段：
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `title` | `string \| null` | 文章标题 |
+| `content` | `string \| null` | 处理后的文章内容（HTML 格式） |
+| `textContent` | `string \| null` | 去除所有 HTML 标签后的纯文本内容 |
+| `length` | `number \| null` | 文章字符数 |
+| `excerpt` | `string \| null` | 文章描述或摘要 |
+| `byline` | `string \| null` | 作者信息 |
+| `dir` | `string \| null` | 内容方向 |
+| `siteName` | `string \| null` | 网站名称 |
+| `lang` | `string \| null` | 内容语言 |
+| `publishedTime` | `string \| null` | 发布时间 |
+
 ### `weibo`
 
 微博相关命令。

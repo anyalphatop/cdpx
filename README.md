@@ -93,6 +93,51 @@ Returns the number of milliseconds elapsed from navigation start until network i
 1823
 ```
 
+### `read`
+
+Fetch a page and extract its article content using Readability.
+
+```bash
+cdpx read <url>
+```
+
+**Arguments:**
+
+| Argument | Description |
+|----------|-------------|
+| `url` | URL to read |
+
+**Options:**
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `--idle-window <ms>` | Network idle window in milliseconds | `CDPX_NETWORK_IDLE_WINDOW` or `500` |
+| `--settle <ms>` | Additional wait in milliseconds after network idle | `0` |
+
+**Example:**
+
+```bash
+cdpx read https://example.com/article
+cdpx read https://example.com/article --settle 500
+```
+
+**Result:**
+
+Returns a JSON object with the following fields.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `title` | `string \| null` | Article title |
+| `content` | `string \| null` | Processed article content as HTML |
+| `textContent` | `string \| null` | Plain text content with all HTML tags removed |
+| `length` | `number \| null` | Article length in characters |
+| `excerpt` | `string \| null` | Article description or short excerpt |
+| `byline` | `string \| null` | Author metadata |
+| `dir` | `string \| null` | Content direction |
+| `siteName` | `string \| null` | Name of the site |
+| `lang` | `string \| null` | Content language |
+| `publishedTime` | `string \| null` | Published time |
+
 ### `weibo`
 
 Commands for weibo.com.
