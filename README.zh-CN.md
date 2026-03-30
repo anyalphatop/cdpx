@@ -38,3 +38,22 @@ cdpx ping --host 127.0.0.1 --port 9222
 | `protocolVersion` | `string` | CDP 协议版本（如 `1.3`） |
 | `webSocketDebuggerUrl` | `string` | 调试器 WebSocket 地址 |
 | `error` | `string` | 连接失败时的错误信息 |
+
+### `tabs`
+
+列出已连接 Chrome 浏览器中所有打开的标签页。
+
+```bash
+cdpx tabs
+```
+
+**返回结果：**
+
+返回一个标签页对象数组。
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `id` | `string` | 标签页 ID |
+| `title` | `string` | 标签页标题 |
+| `url` | `string` | 标签页 URL |
+| `type` | `string` | 标签页类型（如 `page`、`background_page`） |

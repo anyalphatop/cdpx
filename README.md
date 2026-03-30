@@ -39,3 +39,22 @@ cdpx ping --host 127.0.0.1 --port 9222
 | `webSocketDebuggerUrl` | `string` | WebSocket URL for the debugger |
 | `error` | `string` | Error message if connection failed |
 
+### `tabs`
+
+List all open tabs in the connected Chrome browser.
+
+```bash
+cdpx tabs
+```
+
+**Result:**
+
+Returns an array of tab objects.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | `string` | Tab ID |
+| `title` | `string` | Tab title |
+| `url` | `string` | Tab URL |
+| `type` | `string` | Tab type (e.g. `page`, `background_page`) |
+
