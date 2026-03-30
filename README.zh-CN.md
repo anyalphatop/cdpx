@@ -58,7 +58,11 @@ cdpx tabs
 | `url` | `string` | 标签页 URL |
 | `type` | `string` | 标签页类型（如 `page`、`background_page`） |
 
-### `weibo aisearch`
+### `weibo`
+
+微博相关命令。
+
+#### `weibo aisearch`
 
 使用微博 AI 搜索功能搜索内容，并以文本形式返回结果。
 
@@ -82,7 +86,7 @@ cdpx weibo aisearch "人工智能"
 
 返回 AI 生成的搜索结果纯文本字符串。
 
-### `weibo hot`
+#### `weibo hot`
 
 获取当前微博热搜榜单。
 

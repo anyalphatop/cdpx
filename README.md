@@ -58,7 +58,11 @@ Returns an array of tab objects.
 | `url` | `string` | Tab URL |
 | `type` | `string` | Tab type (e.g. `page`, `background_page`) |
 
-### `weibo aisearch`
+### `weibo`
+
+Commands for weibo.com.
+
+#### `weibo aisearch`
 
 Search Weibo using AI search and return the result as text.
 
@@ -82,7 +86,7 @@ cdpx weibo aisearch "artificial intelligence"
 
 Returns the AI-generated search result as a plain text string.
 
-### `weibo hot`
+#### `weibo hot`
 
 Fetch the current Weibo hot search list.
 
