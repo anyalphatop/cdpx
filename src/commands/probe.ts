@@ -5,8 +5,9 @@ const probe = new Command('probe').description('Measure how long a page takes to
 
 probe
   .argument('<url>', 'URL to probe')
-  .action(async (url: string) => {
-    const result = await new ProbeRunner().run({ url });
+  .option('--idle-window <ms>', 'network idle window in milliseconds', parseInt)
+  .action(async (url: string, options: { idleWindow?: number }) => {
+    const result = await new ProbeRunner().run({ url, idleWindow: options.idleWindow });
     console.log(`Network idle after ${result.networkIdleMs}ms`);
   });
 
