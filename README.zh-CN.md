@@ -57,3 +57,19 @@ cdpx tabs
 | `title` | `string` | 标签页标题 |
 | `url` | `string` | 标签页 URL |
 | `type` | `string` | 标签页类型（如 `page`、`background_page`） |
+
+### `weibo hot`
+
+获取当前微博热搜榜单。
+
+```bash
+cdpx weibo hot
+```
+
+**返回结果：**
+
+返回一个热搜词条名称的字符串数组。
+
+```json
+["话题A", "话题B", "话题C"]
+```
