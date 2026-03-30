@@ -4,6 +4,12 @@
 
 Make any website programmable via Chrome CDP.
 
+## Installation
+
+```bash
+npm install -g @anyalphatop/cdpx
+```
+
 ## Commands
 
 ### `ping`

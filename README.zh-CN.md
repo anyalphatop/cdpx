@@ -4,6 +4,12 @@
 
 通过 Chrome CDP 让任何网站可编程。
 
+## 安装
+
+```bash
+npm install -g @anyalphatop/cdpx
+```
+
 ## 命令
 
 ### `ping`
