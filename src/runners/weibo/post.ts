@@ -13,7 +13,6 @@ export class PostRunner extends PageRunner<PostParams, void> {
   }
 
   async ready(): Promise<void> {
-    // Click textarea to expand the compose toolbar
     await this.client.eval(`document.querySelector('textarea').click()`);
     await new Promise(r => setTimeout(r, 500));
   }
@@ -30,8 +29,8 @@ export class PostRunner extends PageRunner<PostParams, void> {
       await this.client.eval(`
         (function() {
           const ta = document.querySelector('textarea');
-          const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value').set;
-          nativeInputValueSetter.call(ta, ${JSON.stringify(fullText)});
+          const setter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value').set;
+          setter.call(ta, ${JSON.stringify(fullText)});
           ta.dispatchEvent(new Event('input', { bubbles: true }));
         })()
       `);
@@ -39,13 +38,11 @@ export class PostRunner extends PageRunner<PostParams, void> {
 
     if (images && images.length > 0) {
       await this.client.setFileInputFiles('input[type=file]', images);
-      // Wait for images to upload
-      await this.client.waitForNetworkIdle(1000);
+      await this.waitForImagesUploaded();
     }
   }
 
   async settle(): Promise<void> {
-    // Click send button
     await this.client.eval(`
       (function() {
         const btn = Array.from(document.querySelectorAll('button'))
@@ -55,9 +52,36 @@ export class PostRunner extends PageRunner<PostParams, void> {
         btn.click();
       })()
     `);
-    // Wait for post request to complete
-    await this.client.waitForNetworkIdle(1000);
+    await this.waitForPostSuccess();
   }
 
   async extract(): Promise<void> {}
+
+  private async waitForImagesUploaded(): Promise<void> {
+    const deadline = Date.now() + 30_000;
+    while (Date.now() < deadline) {
+      await new Promise(r => setTimeout(r, 500));
+      const ready = await this.client.eval(`(function() {
+        const picbed = document.querySelector('[class*=picbed]');
+        if (!picbed) return false;
+        const imgs = Array.from(picbed.querySelectorAll('img'));
+        return imgs.length > 0 && imgs.every(img => img.src.includes('sinaimg.cn') && img.naturalWidth > 0);
+      })()`);
+      if (ready) return;
+    }
+    throw new Error('图片上传超时');
+  }
+
+  private async waitForPostSuccess(): Promise<void> {
+    const deadline = Date.now() + 15_000;
+    while (Date.now() < deadline) {
+      await new Promise(r => setTimeout(r, 300));
+      const text = await this.client.eval(`(function() {
+        const el = document.querySelector('[role=alert]');
+        return el ? el.textContent.trim() : '';
+      })()`);
+      if (String(text) === '发布成功') return;
+    }
+    throw new Error('发布超时，未检测到成功提示');
+  }
 }
