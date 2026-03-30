@@ -58,6 +58,41 @@ Returns an array of tab objects.
 | `url` | `string` | Tab URL |
 | `type` | `string` | Tab type (e.g. `page`, `background_page`) |
 
+### `probe`
+
+Measure how long a URL takes to reach network idle.
+
+```bash
+cdpx probe <url>
+```
+
+**Arguments:**
+
+| Argument | Description |
+|----------|-------------|
+| `url` | URL to probe |
+
+**Options:**
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `--idle-window <ms>` | Network idle window in milliseconds | `CDPX_NETWORK_IDLE_WINDOW` or `500` |
+
+**Example:**
+
+```bash
+cdpx probe https://weibo.com
+cdpx probe https://weibo.com --idle-window 1000
+```
+
+**Result:**
+
+Returns the number of milliseconds elapsed from navigation start until network idle.
+
+```
+1823
+```
+
 ### `weibo`
 
 Commands for weibo.com.

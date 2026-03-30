@@ -58,6 +58,41 @@ cdpx tabs
 | `url` | `string` | 标签页 URL |
 | `type` | `string` | 标签页类型（如 `page`、`background_page`） |
 
+### `probe`
+
+测量指定 URL 到达 network idle 状态所需的时间。
+
+```bash
+cdpx probe <url>
+```
+
+**参数：**
+
+| 参数 | 说明 |
+|------|------|
+| `url` | 要测量的目标 URL |
+
+**选项：**
+
+| 选项 | 说明 | 默认值 |
+|------|------|--------|
+| `--idle-window <ms>` | 判定 network idle 的静默窗口（毫秒） | `CDPX_NETWORK_IDLE_WINDOW` 或 `500` |
+
+**示例：**
+
+```bash
+cdpx probe https://weibo.com
+cdpx probe https://weibo.com --idle-window 1000
+```
+
+**返回结果：**
+
+返回从导航开始到 network idle 所经过的毫秒数。
+
+```
+1823
+```
+
 ### `weibo`
 
 微博相关命令。
