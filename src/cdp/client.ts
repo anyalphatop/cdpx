@@ -44,7 +44,7 @@ export class CdpClient {
     });
   }
 
-  async waitForNetworkIdle(idleWindow: number, excludePatterns: (string | RegExp)[] = [], onRequest?: (url: string) => void): Promise<void> {
+  async waitForNetworkIdle(idleWindow: number, excludePatterns: (string | RegExp)[] = []): Promise<void> {
     await this.send('Network.enable');
     const isExcluded = (url: string) =>
       excludePatterns.some(p => typeof p === 'string' ? url.includes(p) : p.test(url));
@@ -69,7 +69,6 @@ export class CdpClient {
           if (!isExcluded(p.request.url)) {
             inflight.add(p.requestId);
             if (idleTimer) { clearTimeout(idleTimer); idleTimer = null; }
-            onRequest?.(p.request.url);
           }
         } else if (msg.method === 'Network.loadingFinished' || msg.method === 'Network.loadingFailed') {
           const p = msg.params as { requestId: string };

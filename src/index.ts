@@ -2,7 +2,6 @@
 
 import { Command } from 'commander';
 import { createRequire } from 'module';
-import { domains } from './commands/domains.js';
 import { ping } from './commands/ping.js';
 import { probe } from './commands/probe.js';
 import { read } from './commands/read.js';
@@ -19,7 +18,6 @@ program
   .description('Make any website programmable via Chrome CDP.')
   .version(version);
 
-program.addCommand(domains);
 program.addCommand(ping);
 program.addCommand(probe);
 program.addCommand(read);
