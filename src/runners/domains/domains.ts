@@ -1,3 +1,4 @@
+import { parse } from 'tldts';
 import { PageRunner } from '../../page-runner.js';
 import { config } from '../../config.js';
 
@@ -12,12 +13,8 @@ export class DomainsRunner extends PageRunner<DomainsParams, string[]> {
   async navigate(): Promise<void> {
     await this.openBlankTab();
     await this.client.listenRequests((url) => {
-      try {
-        const { hostname } = new URL(url);
-        if (hostname) this.domains.add(hostname);
-      } catch {
-        // ignore unparseable URLs
-      }
+      const { domain } = parse(url);
+      if (domain) this.domains.add(domain);
     });
     await this.client.navigateTo(this.params.url);
   }
