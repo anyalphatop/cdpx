@@ -8,7 +8,9 @@ domains
   .option('--idle-window <ms>', 'network idle window in milliseconds', parseInt)
   .action(async (url: string, options: { idleWindow?: number }) => {
     const result = await new DomainsRunner().run({ url, idleWindow: options.idleWindow });
-    console.log(JSON.stringify(result.domains));
+    for (const domain of result.domains) {
+      console.log(domain);
+    }
   });
 
 export { domains };
