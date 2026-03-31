@@ -1,15 +1,6 @@
 import WebSocket from 'ws';
 import { config } from '../config.js';
 
-export interface NetworkRequest {
-  url: string;
-  method: string;
-  headers: Record<string, string>;
-  postData?: string;
-  initialPriority: string;
-  referrerPolicy: string;
-}
-
 export class CdpClient {
   private _seq = 1;
 
@@ -53,7 +44,7 @@ export class CdpClient {
     });
   }
 
-  async waitForNetworkIdle(idleWindow: number, excludePatterns: (string | RegExp)[] = [], onRequest?: (request: NetworkRequest) => void): Promise<void> {
+  async waitForNetworkIdle(idleWindow: number, excludePatterns: (string | RegExp)[] = [], onRequest?: (url: string) => void): Promise<void> {
     await this.send('Network.enable');
     const isExcluded = (url: string) =>
       excludePatterns.some(p => typeof p === 'string' ? url.includes(p) : p.test(url));
@@ -74,11 +65,11 @@ export class CdpClient {
         const msg = JSON.parse(raw.toString()) as { method?: string; params?: Record<string, unknown> };
         if (!msg.method) return;
         if (msg.method === 'Network.requestWillBeSent') {
-          const p = msg.params as { requestId: string; request: NetworkRequest };
+          const p = msg.params as { requestId: string; request: { url: string } };
           if (!isExcluded(p.request.url)) {
             inflight.add(p.requestId);
             if (idleTimer) { clearTimeout(idleTimer); idleTimer = null; }
-            onRequest?.(p.request);
+            onRequest?.(p.request.url);
           }
         } else if (msg.method === 'Network.loadingFinished' || msg.method === 'Network.loadingFailed') {
           const p = msg.params as { requestId: string };
