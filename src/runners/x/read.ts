@@ -27,7 +27,15 @@ const EXTRACT_EXPR = `JSON.stringify(
   }).filter(Boolean)
 )`;
 
+function tweetKey(t: XTweet): string {
+  return (t.text ?? '') + '\0' + t.images.join('\0');
+}
+
 export class XReadRunner extends PageRunner<XReadParams, XReadResult> {
+  private mainTweet: XTweet = { text: null, images: [] };
+  private collectedComments: XTweet[] = [];
+  private seenKeys = new Set<string>();
+
   async navigate(): Promise<void> {
     await this.openBlankTab();
     await this.client.navigateTo(this.params.url);
@@ -40,26 +48,48 @@ export class XReadRunner extends PageRunner<XReadParams, XReadResult> {
       `document.querySelectorAll('article[data-testid="tweet"]').length`,
       config.cdp.readyTimeout,
     );
+    // Save main tweet before any scrolling
+    const raw = await this.client.eval(EXTRACT_EXPR) as string;
+    const tweets = JSON.parse(raw) as XTweet[];
+    this.mainTweet = tweets[0] ?? { text: null, images: [] };
   }
 
   async interact(): Promise<void> {
     if (!this.params.comments) return;
     const limit = this.params.limit ?? 20;
     const scrollStep = config.cdp.scrollStep;
-    const getTotal = () =>
-      this.client.eval(`document.querySelectorAll('article[data-testid="tweet"]').length`) as Promise<number>;
+
+    const collect = async () => {
+      const raw = await this.client.eval(EXTRACT_EXPR) as string;
+      const tweets = JSON.parse(raw) as XTweet[];
+      for (const t of tweets) {
+        // If text matches the main tweet, this is the same tweet (possibly with images now loaded)
+        if (t.text !== null && t.text === this.mainTweet.text) {
+          if (t.images.length > this.mainTweet.images.length) {
+            this.mainTweet = { ...t };
+          }
+          continue;
+        }
+        const key = tweetKey(t);
+        if (!this.seenKeys.has(key)) {
+          this.seenKeys.add(key);
+          this.collectedComments.push(t);
+        }
+      }
+    };
+
+    await collect();
 
     let stableScrolls = 0;
 
-    while (true) {
-      const total = await getTotal();
-      if (total - 1 >= limit) break;
+    while (this.collectedComments.length < limit) {
+      const prevCount = this.collectedComments.length;
 
       await this.client.eval(`window.scrollBy(0, ${scrollStep})`);
       await new Promise(r => setTimeout(r, 1000));
+      await collect();
 
-      const newTotal = await getTotal();
-      if (newTotal > total) {
+      if (this.collectedComments.length > prevCount) {
         stableScrolls = 0;
       } else {
         stableScrolls++;
@@ -69,13 +99,10 @@ export class XReadRunner extends PageRunner<XReadParams, XReadResult> {
   }
 
   async extract(): Promise<XReadResult> {
-    const raw = await this.client.eval(EXTRACT_EXPR) as string;
-    const tweets = JSON.parse(raw) as XTweet[];
-    const limit = this.params.limit ?? 20;
-
-    const result: XReadResult = { tweet: tweets[0] ?? { text: null, images: [] } };
+    const result: XReadResult = { tweet: this.mainTweet };
     if (this.params.comments) {
-      result.comments = tweets.slice(1, limit + 1);
+      const limit = this.params.limit ?? 20;
+      result.comments = this.collectedComments.slice(0, limit);
     }
     return result;
   }

@@ -8,7 +8,7 @@ x
   .description('read a post and optionally its comments')
   .argument('<url>', 'post URL')
   .option('--comments', 'fetch comments')
-  .option('--limit <n>', 'max number of comments to fetch', parseInt, 20)
+  .option('--limit <n>', 'max number of comments to fetch', (v) => parseInt(v, 10), 20)
   .action(async (url: string, options: { comments?: boolean; limit?: number }) => {
     const result = await new XReadRunner().run({
       url,
