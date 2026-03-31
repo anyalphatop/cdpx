@@ -6,6 +6,7 @@ import { ping } from './commands/ping.js';
 import { probe } from './commands/probe.js';
 import { read } from './commands/read.js';
 import { tabs } from './commands/tabs.js';
+import { domains } from './commands/domains.js';
 import { weibo } from './commands/weibo.js';
 
 const require = createRequire(import.meta.url);
@@ -22,6 +23,7 @@ program.addCommand(ping);
 program.addCommand(probe);
 program.addCommand(read);
 program.addCommand(tabs);
+program.addCommand(domains);
 program.addCommand(weibo);
 
 program.parse();

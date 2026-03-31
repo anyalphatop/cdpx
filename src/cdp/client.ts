@@ -92,6 +92,19 @@ export class CdpClient {
     });
   }
 
+  async listenRequests(callback: (url: string) => void): Promise<void> {
+    await this.send('Network.enable');
+    this.ws.on('message', (raw: WebSocket.RawData) => {
+      const msg = JSON.parse(raw.toString()) as { method?: string; params?: Record<string, unknown> };
+      if (msg.method === 'Network.requestWillBeSent') {
+        const p = msg.params as { request: { url: string }; type?: string };
+        if (!p.request.url.startsWith('blob:') && p.type !== 'WebSocket') {
+          callback(p.request.url);
+        }
+      }
+    });
+  }
+
   async navigateTo(url: string): Promise<void> {
     await this.send('Page.navigate', { url });
   }
