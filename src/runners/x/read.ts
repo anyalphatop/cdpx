@@ -18,82 +18,102 @@ export interface XReadResult {
   comments?: XTweet[];
 }
 
-const EXTRACT_EXPR = `JSON.stringify(
-  Array.from(document.querySelectorAll('article[data-testid="tweet"]')).map(a => {
-    if (a.querySelector('[data-testid="placementTracking"]')) return null;
-    const t = a.querySelector('[data-testid="tweetText"]');
-    const imgs = Array.from(a.querySelectorAll('[data-testid="tweetPhoto"] img')).map(i => i.src);
-    return { text: t ? t.innerText : null, images: imgs };
-  }).filter(Boolean)
-)`;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function extractTweet(result: any): { id: string; text: string; images: string[] } | null {
+  const tweet = result?.tweet ?? result;
+  const legacy = tweet?.legacy;
+  if (!legacy || !tweet?.rest_id) return null;
 
-function tweetKey(t: XTweet): string {
-  return (t.text ?? '') + '\0' + t.images.join('\0');
+  const mediaItems: any[] = (legacy.extended_entities ?? legacy.entities)?.media ?? [];
+  const images: string[] = mediaItems
+    .filter((m: any) => m.type === 'photo')
+    .map((m: any) => m.media_url_https as string);
+
+  // Strip trailing t.co media URLs from full_text
+  const mediaUrls: string[] = mediaItems.map((m: any) => m.url as string).filter(Boolean);
+  let text: string = legacy.full_text ?? '';
+  for (const url of mediaUrls) {
+    text = text.replace(url, '').trim();
+  }
+
+  return { id: tweet.rest_id as string, text, images };
 }
 
 export class XReadRunner extends PageRunner<XReadParams, XReadResult> {
+  private tweetId = '';
   private mainTweet: XTweet = { text: null, images: [] };
-  private collectedComments: XTweet[] = [];
-  private seenKeys = new Set<string>();
+  private comments: XTweet[] = [];
+  private seenIds = new Set<string>();
+  private receivedCount = 0;
+
+  private processResponse(data: unknown): void {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const instructions: any[] =
+      (data as any)?.data?.threaded_conversation_with_injections_v2?.instructions ?? [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const addEntries = instructions.find((i: any) => i.type === 'TimelineAddEntries');
+    if (!addEntries?.entries) return;
+
+    for (const entry of addEntries.entries) {
+      const entryType: string = entry.content?.entryType;
+      if (entryType === 'TimelineTimelineItem') {
+        const t = extractTweet(entry.content?.itemContent?.tweet_results?.result);
+        if (t && !this.seenIds.has(t.id)) {
+          this.seenIds.add(t.id);
+          if (t.id === this.tweetId) {
+            this.mainTweet = { text: t.text, images: t.images };
+          }
+        }
+      } else if (entryType === 'TimelineTimelineModule') {
+        for (const item of entry.content?.items ?? []) {
+          const t = extractTweet(item.item?.itemContent?.tweet_results?.result);
+          if (t && !this.seenIds.has(t.id) && t.id !== this.tweetId) {
+            this.seenIds.add(t.id);
+            this.comments.push({ text: t.text, images: t.images });
+          }
+        }
+      }
+    }
+
+    this.receivedCount++;
+  }
 
   async navigate(): Promise<void> {
+    this.tweetId = new URL(this.params.url).pathname.split('/').pop()!;
     await this.openBlankTab();
+    await this.client.onJsonResponse('/TweetDetail?', (data) => this.processResponse(data));
     await this.client.navigateTo(this.params.url);
   }
 
   async ready(): Promise<void> {
     const idleWindow = this.params.idleWindow ?? config.cdp.networkIdleWindow;
     await this.client.waitForNetworkIdle(idleWindow, ['video.twimg.com', 'proxsee.pscp.tv']);
-    await this.client.pollFor(
-      `document.querySelectorAll('article[data-testid="tweet"]').length`,
-      config.cdp.readyTimeout,
-    );
-    // Save main tweet before any scrolling
-    const raw = await this.client.eval(EXTRACT_EXPR) as string;
-    const tweets = JSON.parse(raw) as XTweet[];
-    this.mainTweet = tweets[0] ?? { text: null, images: [] };
+    // Ensure at least one TweetDetail response has been processed
+    const deadline = Date.now() + config.cdp.readyTimeout;
+    while (Date.now() < deadline && this.receivedCount === 0) {
+      await new Promise(r => setTimeout(r, config.cdp.pollInterval));
+    }
+    if (this.receivedCount === 0) throw new Error('No TweetDetail response received');
   }
 
   async interact(): Promise<void> {
     if (!this.params.comments) return;
     const limit = this.params.limit ?? 20;
     const scrollStep = config.cdp.scrollStep;
-
-    const collect = async () => {
-      const raw = await this.client.eval(EXTRACT_EXPR) as string;
-      const tweets = JSON.parse(raw) as XTweet[];
-      for (const t of tweets) {
-        // If text matches the main tweet, this is the same tweet (possibly with images now loaded)
-        if (t.text !== null && t.text === this.mainTweet.text) {
-          if (t.images.length > this.mainTweet.images.length) {
-            this.mainTweet = { ...t };
-          }
-          continue;
-        }
-        const key = tweetKey(t);
-        if (!this.seenKeys.has(key)) {
-          this.seenKeys.add(key);
-          this.collectedComments.push(t);
-        }
-      }
-    };
-
-    await collect();
-
     let stableScrolls = 0;
 
-    while (this.collectedComments.length < limit) {
-      const prevCount = this.collectedComments.length;
+    while (this.comments.length < limit) {
+      const prevScrollY = await this.client.eval('window.scrollY') as number;
 
       await this.client.eval(`window.scrollBy(0, ${scrollStep})`);
-      await new Promise(r => setTimeout(r, 1000));
-      await collect();
+      await new Promise(r => setTimeout(r, 1500));
 
-      if (this.collectedComments.length > prevCount) {
-        stableScrolls = 0;
-      } else {
+      const newScrollY = await this.client.eval('window.scrollY') as number;
+      if (newScrollY === prevScrollY) {
         stableScrolls++;
         if (stableScrolls >= 3) break;
+      } else {
+        stableScrolls = 0;
       }
     }
   }
@@ -102,7 +122,7 @@ export class XReadRunner extends PageRunner<XReadParams, XReadResult> {
     const result: XReadResult = { tweet: this.mainTweet };
     if (this.params.comments) {
       const limit = this.params.limit ?? 20;
-      result.comments = this.collectedComments.slice(0, limit);
+      result.comments = this.comments.slice(0, limit);
     }
     return result;
   }

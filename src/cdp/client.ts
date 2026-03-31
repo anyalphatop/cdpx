@@ -181,6 +181,32 @@ export class CdpClient {
     return await this.eval(`window.__copiedText`) as string;
   }
 
+  async onJsonResponse(urlPart: string, callback: (data: unknown) => void): Promise<() => void> {
+    await this.send('Network.enable');
+    const pending = new Set<string>();
+    const onMessage = async (raw: WebSocket.RawData) => {
+      const msg = JSON.parse(raw.toString()) as { method?: string; params?: Record<string, unknown> };
+      if (!msg.method) return;
+      if (msg.method === 'Network.requestWillBeSent') {
+        const p = msg.params as { requestId: string; request: { url: string } };
+        if (p.request.url.includes(urlPart)) pending.add(p.requestId);
+      } else if (msg.method === 'Network.loadingFinished') {
+        const p = msg.params as { requestId: string };
+        if (pending.has(p.requestId)) {
+          pending.delete(p.requestId);
+          try {
+            const result = await this.send('Network.getResponseBody', { requestId: p.requestId });
+            const r = result as { body: string; base64Encoded: boolean };
+            const text = r.base64Encoded ? Buffer.from(r.body, 'base64').toString() : r.body;
+            callback(JSON.parse(text));
+          } catch {}
+        }
+      }
+    };
+    this.ws.on('message', onMessage);
+    return () => this.ws.off('message', onMessage);
+  }
+
   async pollFor(expression: string, timeout: number): Promise<void> {
     const deadline = Date.now() + timeout;
     while (Date.now() < deadline) {
