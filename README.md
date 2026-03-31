@@ -99,6 +99,40 @@ Returns the number of milliseconds elapsed from navigation start until network i
 1823
 ```
 
+### `domains`
+
+List all registered domains accessed when loading a page.
+
+```bash
+cdpx domains <url>
+```
+
+**Arguments:**
+
+| Argument | Description |
+|----------|-------------|
+| `url` | URL to load |
+
+**Options:**
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `--idle-window <ms>` | Network idle window in milliseconds | `CDPX_NETWORK_IDLE_WINDOW` or `500` |
+
+**Example:**
+
+```bash
+cdpx domains https://weibo.com
+```
+
+**Result:**
+
+Returns a JSON array of unique registered domain names, sorted alphabetically. Subdomains are collapsed to their registered domain (e.g. `static.example.com` → `example.com`).
+
+```json
+["sinaimg.cn", "weibo.com", "weibocdn.com"]
+```
+
 ### `read`
 
 Fetch a page and extract its article content using Readability.

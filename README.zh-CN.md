@@ -99,6 +99,40 @@ cdpx probe https://weibo.com --idle-window 1000
 1823
 ```
 
+### `domains`
+
+列出加载页面时访问的所有注册域名。
+
+```bash
+cdpx domains <url>
+```
+
+**参数：**
+
+| 参数 | 说明 |
+|------|------|
+| `url` | 要加载的目标 URL |
+
+**选项：**
+
+| 选项 | 说明 | 默认值 |
+|------|------|--------|
+| `--idle-window <ms>` | 判定 network idle 的静默窗口（毫秒） | `CDPX_NETWORK_IDLE_WINDOW` 或 `500` |
+
+**示例：**
+
+```bash
+cdpx domains https://weibo.com
+```
+
+**返回结果：**
+
+返回去重后按字母排序的注册域名 JSON 数组。子域名会折叠到注册域名（如 `static.example.com` → `example.com`）。
+
+```json
+["sinaimg.cn", "weibo.com", "weibocdn.com"]
+```
+
 ### `read`
 
 使用 Readability 获取指定页面的文章内容。
