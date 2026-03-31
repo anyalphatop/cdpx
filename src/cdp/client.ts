@@ -65,10 +65,16 @@ export class CdpClient {
         const msg = JSON.parse(raw.toString()) as { method?: string; params?: Record<string, unknown> };
         if (!msg.method) return;
         if (msg.method === 'Network.requestWillBeSent') {
-          const p = msg.params as { requestId: string; request: { url: string } };
-          if (!isExcluded(p.request.url)) {
+          const p = msg.params as { requestId: string; request: { url: string }; type?: string };
+          if (!isExcluded(p.request.url) && !p.request.url.startsWith('blob:') && p.type !== 'WebSocket') {
             inflight.add(p.requestId);
             if (idleTimer) { clearTimeout(idleTimer); idleTimer = null; }
+          }
+        } else if (msg.method === 'Network.responseReceived') {
+          const p = msg.params as { requestId: string; response: { mimeType: string } };
+          if (p.response.mimeType === 'text/event-stream') {
+            inflight.delete(p.requestId);
+            scheduleIdleCheck();
           }
         } else if (msg.method === 'Network.loadingFinished' || msg.method === 'Network.loadingFailed') {
           const p = msg.params as { requestId: string };
