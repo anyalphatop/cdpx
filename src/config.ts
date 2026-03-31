@@ -7,5 +7,6 @@ export const config = {
     readyTimeout: parseInt(process.env.CDPX_READY_TIMEOUT ?? '180000', 10),
     copyDelay: parseInt(process.env.CDPX_COPY_DELAY ?? '600', 10),
     networkIdleWindow: parseInt(process.env.CDPX_NETWORK_IDLE_WINDOW ?? '500', 10),
+    scrollStep: parseInt(process.env.CDPX_SCROLL_STEP ?? '800', 10),
   },
 };

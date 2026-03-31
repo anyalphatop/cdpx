@@ -181,6 +181,16 @@ export class CdpClient {
     return await this.eval(`window.__copiedText`) as string;
   }
 
+  async pollFor(expression: string, timeout: number): Promise<void> {
+    const deadline = Date.now() + timeout;
+    while (Date.now() < deadline) {
+      const count = await this.eval(expression) as number;
+      if (count > 0) return;
+      await new Promise(r => setTimeout(r, config.cdp.pollInterval));
+    }
+    throw new Error(`Timeout waiting for: ${expression}`);
+  }
+
   async setFileInputFiles(selector: string, files: string[]): Promise<void> {
     const { root } = await this.send('DOM.getDocument') as { root: { nodeId: number } };
     const { nodeId } = await this.send('DOM.querySelector', { nodeId: root.nodeId, selector }) as { nodeId: number };

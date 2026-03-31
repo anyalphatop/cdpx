@@ -8,6 +8,7 @@ import { read } from './commands/read.js';
 import { tabs } from './commands/tabs.js';
 import { domains } from './commands/domains.js';
 import { weibo } from './commands/weibo.js';
+import { x } from './commands/x.js';
 
 const require = createRequire(import.meta.url);
 const { version } = require('../package.json') as { version: string };
@@ -25,5 +26,6 @@ program.addCommand(read);
 program.addCommand(tabs);
 program.addCommand(domains);
 program.addCommand(weibo);
+program.addCommand(x);
 
 program.parse();
