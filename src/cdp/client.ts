@@ -80,7 +80,7 @@ export class CdpClient {
             if (idleTimer) { clearTimeout(idleTimer); idleTimer = null; }
             onRequest?.(p.request);
           }
-        } else if (msg.method === 'Network.loadingFinished' || msg.method === 'Network.loadingFailed') {
+        } else if (msg.method === 'Network.responseReceived' || msg.method === 'Network.loadingFinished' || msg.method === 'Network.loadingFailed') {
           const p = msg.params as { requestId: string };
           inflight.delete(p.requestId);
           scheduleIdleCheck();
