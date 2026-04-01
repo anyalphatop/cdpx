@@ -28,6 +28,12 @@ function extractTweet(result: any): { id: string; text: string } | null {
   return { id: tweet.rest_id as string, text: legacy.full_text as string };
 }
 
+// Reply tweets start with one or more @mention prefixes (e.g. "@user1 @user2 text").
+// Strip them so the comment text contains only the actual content.
+function stripReplyPrefix(text: string): string {
+  return text.replace(/^(@\w+\s+)+/, '').trim();
+}
+
 export class XReadRunner extends PageRunner<XReadParams, XReadResult> {
   private tweetId = '';
   private mainPost: XPostContent = { text: null };
@@ -62,7 +68,7 @@ export class XReadRunner extends PageRunner<XReadParams, XReadResult> {
           const t = extractTweet(item.item?.itemContent?.tweet_results?.result);
           if (t && !this.seenIds.has(t.id) && t.id !== this.tweetId) {
             this.seenIds.add(t.id);
-            this.comments.push({ text: t.text });
+            this.comments.push({ text: stripReplyPrefix(t.text) });
           }
         }
       }
