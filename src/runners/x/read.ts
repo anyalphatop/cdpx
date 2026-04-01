@@ -8,6 +8,8 @@ export interface XReadParams {
 }
 
 export interface XPostContent {
+  type: 'post' | 'article';
+  title: string | null;
   text: string | null;
 }
 
@@ -21,20 +23,23 @@ export interface XReadResult {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function extractTweet(result: any): { id: string; text: string } | null {
+function extractTweet(result: any): { id: string; type: 'post' | 'article'; title: string | null; text: string } | null {
   const tweet = result?.tweet ?? result;
   const legacy = tweet?.legacy;
   if (!legacy || !tweet?.rest_id) return null;
 
-  // Article tweets store content in article.article_results.result.content_state.blocks;
+  // Article tweets store content in article.article_results.result;
   // legacy.full_text is just a t.co placeholder link in this case
+  const articleResult = tweet.article?.article_results?.result;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const blocks: any[] = tweet.article?.article_results?.result?.content_state?.blocks ?? [];
-  const text = blocks.length > 0
-    ? blocks.map((b: any) => b.text as string).filter(Boolean).join('\n\n')
-    : legacy.full_text as string;
+  const blocks: any[] = articleResult?.content_state?.blocks ?? [];
+  if (blocks.length > 0) {
+    const title: string | null = articleResult?.title ?? null;
+    const text = blocks.map((b: any) => b.text as string).filter(Boolean).join('\n\n');
+    return { id: tweet.rest_id as string, type: 'article', title, text };
+  }
 
-  return { id: tweet.rest_id as string, text };
+  return { id: tweet.rest_id as string, type: 'post', title: null, text: legacy.full_text as string };
 }
 
 // Reply tweets start with one or more @mention prefixes (e.g. "@user1 @user2 text").
@@ -45,7 +50,7 @@ function stripReplyPrefix(text: string): string {
 
 export class XReadRunner extends PageRunner<XReadParams, XReadResult> {
   private tweetId = '';
-  private mainPost: XPostContent = { text: null };
+  private mainPost: XPostContent = { type: 'post', title: null, text: null };
   private comments: XCommentContent[] = [];
   private seenIds = new Set<string>();
   // Flag set when the first TweetDetail response has been fully processed
@@ -68,7 +73,7 @@ export class XReadRunner extends PageRunner<XReadParams, XReadResult> {
         if (t && !this.seenIds.has(t.id)) {
           this.seenIds.add(t.id);
           if (t.id === this.tweetId) {
-            this.mainPost = { text: t.text };
+            this.mainPost = { type: t.type, title: t.title, text: t.text };
           }
         }
       // TimelineTimelineModule: grouped entries (conversation threads / comment threads)

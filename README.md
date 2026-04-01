@@ -218,6 +218,8 @@ Returns a JSON object with the following fields.
 | Field | Type | Description |
 |-------|------|-------------|
 | `post` | `object` | The main post |
+| `post.type` | `'post' \| 'article'` | Post type |
+| `post.title` | `string \| null` | Title (article type only) |
 | `post.text` | `string \| null` | Post text |
 | `comments` | `object[]` | Comments (only present when `--comments` is specified) |
 | `comments[].text` | `string \| null` | Comment text |

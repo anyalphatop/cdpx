@@ -218,6 +218,8 @@ cdpx x read https://x.com/user/status/123456789 --comments --limit 50
 | 字段 | 类型 | 说明 |
 |------|------|------|
 | `post` | `object` | 主推文 |
+| `post.type` | `'post' \| 'article'` | 推文类型 |
+| `post.title` | `string \| null` | 标题（仅 article 类型有值） |
 | `post.text` | `string \| null` | 推文文本 |
 | `comments` | `object[]` | 评论列表（仅在指定 `--comments` 时返回） |
 | `comments[].text` | `string \| null` | 评论文本 |
