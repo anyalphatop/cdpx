@@ -9,5 +9,6 @@ export const config = {
     networkIdleWindow: parseInt(process.env.CDPX_NETWORK_IDLE_WINDOW ?? '500', 10),
     scrollStep: parseInt(process.env.CDPX_SCROLL_STEP ?? '800', 10),
     scrollInterval: parseInt(process.env.CDPX_SCROLL_INTERVAL ?? '1000', 10),
+    scrollStableThreshold: parseInt(process.env.CDPX_SCROLL_STABLE_THRESHOLD ?? '3', 10),
   },
 };

@@ -121,7 +121,7 @@ export class XReadRunner extends PageRunner<XReadParams, XReadResult> {
       // stable scrolls to avoid false positives from lazy-loading pauses
       if (newScrollY === prevScrollY) {
         stableScrolls++;
-        if (stableScrolls >= 3) break;
+        if (stableScrolls >= config.cdp.scrollStableThreshold) break;
       } else {
         stableScrolls = 0;
       }
