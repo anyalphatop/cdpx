@@ -7,10 +7,14 @@ import type { AiSearchParams } from './runners/weibo/ai-search.js';
 import { HotRunner } from './runners/weibo/hot.js';
 import { PostRunner } from './runners/weibo/post.js';
 import type { PostParams } from './runners/weibo/post.js';
+import { XReadRunner } from './runners/x/read.js';
+import type { XReadParams, XReadResult } from './runners/x/read.js';
+import { XPostsRunner } from './runners/x/posts.js';
+import type { XPostsParams, XPost } from './runners/x/posts.js';
 import { config } from './config.js';
 
 export { config };
-export type { PingResult, Tab, PostParams };
+export type { PingResult, Tab, PostParams, XReadParams, XReadResult, XPostsParams, XPost };
 
 export const cdpx = {
   ping: () => new PingRunner().run(),
@@ -19,5 +23,9 @@ export const cdpx = {
     aisearch: (params: AiSearchParams) => new AiSearchRunner().run(params),
     hot: () => new HotRunner().run({}),
     post: (params: PostParams) => new PostRunner().run(params),
+  },
+  x: {
+    read: (params: XReadParams) => new XReadRunner().run(params),
+    posts: (params: XPostsParams) => new XPostsRunner().run(params),
   },
 };
