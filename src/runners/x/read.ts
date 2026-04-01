@@ -44,8 +44,10 @@ export class XReadRunner extends PageRunner<XReadParams, XReadResult> {
   private mainTweet: XTweet = { text: null, images: [] };
   private comments: XTweet[] = [];
   private seenIds = new Set<string>();
+  // Count of TweetDetail responses fully processed; used to detect when data is ready
   private receivedCount = 0;
 
+  // Called for each intercepted TweetDetail response
   private processResponse(data: unknown): void {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const instructions: any[] =
@@ -56,6 +58,7 @@ export class XReadRunner extends PageRunner<XReadParams, XReadResult> {
 
     for (const entry of addEntries.entries) {
       const entryType: string = entry.content?.entryType;
+      // TimelineTimelineItem: single tweet entry — may be the main tweet or a top-level reply
       if (entryType === 'TimelineTimelineItem') {
         const t = extractTweet(entry.content?.itemContent?.tweet_results?.result);
         if (t && !this.seenIds.has(t.id)) {
@@ -64,6 +67,7 @@ export class XReadRunner extends PageRunner<XReadParams, XReadResult> {
             this.mainTweet = { text: t.text, images: t.images };
           }
         }
+      // TimelineTimelineModule: grouped entries (conversation threads / comment threads)
       } else if (entryType === 'TimelineTimelineModule') {
         for (const item of entry.content?.items ?? []) {
           const t = extractTweet(item.item?.itemContent?.tweet_results?.result);
@@ -79,8 +83,10 @@ export class XReadRunner extends PageRunner<XReadParams, XReadResult> {
   }
 
   async navigate(): Promise<void> {
+    // Extract tweet ID from URL path (last segment)
     this.tweetId = new URL(this.params.url).pathname.split('/').pop()!;
     await this.openBlankTab();
+    // Register listener before navigation so no TweetDetail response is missed
     await this.client.onJsonResponse('/TweetDetail?', (data) => this.processResponse(data));
     await this.client.navigateTo(this.params.url);
   }
@@ -88,7 +94,8 @@ export class XReadRunner extends PageRunner<XReadParams, XReadResult> {
   async ready(): Promise<void> {
     const idleWindow = this.params.idleWindow ?? config.cdp.networkIdleWindow;
     await this.client.waitForNetworkIdle(idleWindow, ['video.twimg.com', 'proxsee.pscp.tv']);
-    // Ensure at least one TweetDetail response has been processed
+    // waitForNetworkIdle resolves on loadingFinished, but getResponseBody inside
+    // onJsonResponse is async, so poll until at least one response is fully processed
     const deadline = Date.now() + config.cdp.readyTimeout;
     while (Date.now() < deadline && this.receivedCount === 0) {
       await new Promise(r => setTimeout(r, config.cdp.pollInterval));
@@ -100,6 +107,7 @@ export class XReadRunner extends PageRunner<XReadParams, XReadResult> {
     if (!this.params.comments) return;
     const limit = this.params.limit ?? 20;
     const scrollStep = config.cdp.scrollStep;
+    // Track consecutive scrolls with no position change to detect page bottom
     let stableScrolls = 0;
 
     while (this.comments.length < limit) {
@@ -109,6 +117,8 @@ export class XReadRunner extends PageRunner<XReadParams, XReadResult> {
       await new Promise(r => setTimeout(r, 1500));
 
       const newScrollY = await this.client.eval('window.scrollY') as number;
+      // scrollY unchanged after scroll means page bottom; require 3 consecutive
+      // stable scrolls to avoid false positives from lazy-loading pauses
       if (newScrollY === prevScrollY) {
         stableScrolls++;
         if (stableScrolls >= 3) break;
