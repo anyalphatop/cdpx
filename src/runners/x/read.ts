@@ -25,7 +25,16 @@ function extractTweet(result: any): { id: string; text: string } | null {
   const tweet = result?.tweet ?? result;
   const legacy = tweet?.legacy;
   if (!legacy || !tweet?.rest_id) return null;
-  return { id: tweet.rest_id as string, text: legacy.full_text as string };
+
+  // Article tweets store content in article.article_results.result.content_state.blocks;
+  // legacy.full_text is just a t.co placeholder link in this case
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const blocks: any[] = tweet.article?.article_results?.result?.content_state?.blocks ?? [];
+  const text = blocks.length > 0
+    ? blocks.map((b: any) => b.text as string).filter(Boolean).join('\n\n')
+    : legacy.full_text as string;
+
+  return { id: tweet.rest_id as string, text };
 }
 
 // Reply tweets start with one or more @mention prefixes (e.g. "@user1 @user2 text").
