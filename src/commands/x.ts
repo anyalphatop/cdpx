@@ -22,12 +22,12 @@ x
 x
   .command('posts')
   .description('fetch posts from a user')
-  .argument('<userId>', 'user ID')
+  .argument('<id>', 'user ID')
   .option('--since <timestamp>', 'start time as Unix timestamp in seconds', (v) => parseInt(v, 10))
   .option('--limit <n>', 'max number of posts to fetch', (v) => parseInt(v, 10), 10)
-  .action(async (userId: string, options: { since?: number; limit?: number }) => {
+  .action(async (id: string, options: { since?: number; limit?: number }) => {
     const result = await new XPostsRunner().run({
-      userId,
+      id,
       since: options.since,
       limit: options.limit,
     });

@@ -2,14 +2,14 @@ import { PageRunner } from '../../page-runner.js';
 import { config } from '../../config.js';
 
 export interface XPostsParams {
-  userId: string;
+  id: string;
   since?: number;
   limit?: number;
 }
 
 export interface XPost {
   id: string;
-  time: string;
+  time: number;
   text: string;
 }
 
@@ -58,7 +58,7 @@ export class XPostsRunner extends PageRunner<XPostsParams, XPost[]> {
         if (this.posts.length < limit) {
           this.posts.push({
             id: parsed.id,
-            time: new Date(parsed.createdAt).toISOString().slice(0, 19).replace('T', ' '),
+            time: tweetTime,
             text: parsed.text,
           });
         }
@@ -71,7 +71,7 @@ export class XPostsRunner extends PageRunner<XPostsParams, XPost[]> {
   async navigate(): Promise<void> {
     await this.openBlankTab();
     await this.client.onJsonResponse('UserTweets', (data) => this.processResponse(data));
-    await this.client.navigateTo(`https://x.com/${this.params.userId}`);
+    await this.client.navigateTo(`https://x.com/${this.params.id}`);
   }
 
   async ready(): Promise<void> {
