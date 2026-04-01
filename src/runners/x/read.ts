@@ -3,7 +3,6 @@ import { config } from '../../config.js';
 
 export interface XReadParams {
   url: string;
-  idleWindow?: number;
   comments?: boolean;
   limit?: number;
 }
@@ -92,8 +91,7 @@ export class XReadRunner extends PageRunner<XReadParams, XReadResult> {
   }
 
   async ready(): Promise<void> {
-    const idleWindow = this.params.idleWindow ?? config.cdp.networkIdleWindow;
-    await this.client.waitForNetworkIdle(idleWindow, ['video.twimg.com', 'proxsee.pscp.tv']);
+    await this.client.waitForNetworkIdle(config.cdp.networkIdleWindow, ['video.twimg.com', 'proxsee.pscp.tv']);
     // waitForNetworkIdle resolves on loadingFinished, but getResponseBody inside
     // onJsonResponse is async, so poll until at least one response is fully processed
     const deadline = Date.now() + config.cdp.readyTimeout;
