@@ -207,6 +207,24 @@ export class CdpClient {
     return () => this.ws.off('message', onMessage);
   }
 
+  // Scrolls down repeatedly until shouldStop() returns true or page bottom is reached.
+  // Bottom is detected when scrollY is unchanged for scrollStableThreshold consecutive scrolls.
+  async scrollUntil(shouldStop: () => boolean): Promise<void> {
+    let stableScrolls = 0;
+    while (!shouldStop()) {
+      const prevScrollY = await this.eval('window.scrollY') as number;
+      await this.eval(`window.scrollBy(0, ${config.cdp.scrollStep})`);
+      await new Promise(r => setTimeout(r, config.cdp.scrollInterval));
+      const newScrollY = await this.eval('window.scrollY') as number;
+      if (newScrollY === prevScrollY) {
+        stableScrolls++;
+        if (stableScrolls >= config.cdp.scrollStableThreshold) break;
+      } else {
+        stableScrolls = 0;
+      }
+    }
+  }
+
   async pollFor(expression: string, timeout: number): Promise<void> {
     const deadline = Date.now() + timeout;
     while (Date.now() < deadline) {

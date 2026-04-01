@@ -97,14 +97,7 @@ export class XPostsRunner extends PageRunner<XPostsParams, XPost[]> {
   async interact(): Promise<void> {
     const limit = this.params.limit ?? 10;
     // Keep scrolling until we have enough tweets, hit the time limit, or reach the bottom
-    while (this.posts.length < limit && !this.reachedTimeLimit) {
-      const prevScrollY = await this.client.eval('window.scrollY') as number;
-      await this.client.eval(`window.scrollBy(0, ${config.cdp.scrollStep})`);
-      await new Promise(r => setTimeout(r, config.cdp.scrollInterval));
-      const newScrollY = await this.client.eval('window.scrollY') as number;
-      // scrollY unchanged means we've reached the bottom of the page
-      if (newScrollY === prevScrollY) break;
-    }
+    await this.client.scrollUntil(() => this.posts.length >= limit || this.reachedTimeLimit);
   }
 
   async extract(): Promise<XPost[]> {

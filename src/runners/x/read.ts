@@ -106,26 +106,7 @@ export class XReadRunner extends PageRunner<XReadParams, XReadResult> {
   async interact(): Promise<void> {
     if (!this.params.comments) return;
     const limit = this.params.limit ?? 20;
-    const scrollStep = config.cdp.scrollStep;
-    // Track consecutive scrolls with no position change to detect page bottom
-    let stableScrolls = 0;
-
-    while (this.comments.length < limit) {
-      const prevScrollY = await this.client.eval('window.scrollY') as number;
-
-      await this.client.eval(`window.scrollBy(0, ${scrollStep})`);
-      await new Promise(r => setTimeout(r, config.cdp.scrollInterval));
-
-      const newScrollY = await this.client.eval('window.scrollY') as number;
-      // scrollY unchanged after scroll means page bottom; require 3 consecutive
-      // stable scrolls to avoid false positives from lazy-loading pauses
-      if (newScrollY === prevScrollY) {
-        stableScrolls++;
-        if (stableScrolls >= config.cdp.scrollStableThreshold) break;
-      } else {
-        stableScrolls = 0;
-      }
-    }
+    await this.client.scrollUntil(() => this.comments.length >= limit);
   }
 
   async extract(): Promise<XReadResult> {
