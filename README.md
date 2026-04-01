@@ -178,6 +178,91 @@ Returns a JSON object with the following fields.
 | `lang` | `string \| null` | Content language |
 | `publishedTime` | `string \| null` | Published time |
 
+### `x`
+
+Commands for x.com.
+
+#### `x read`
+
+Read a post and optionally its comments.
+
+```bash
+cdpx x read <url>
+```
+
+**Arguments:**
+
+| Argument | Description |
+|----------|-------------|
+| `url` | Post URL |
+
+**Options:**
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `--comments` | Fetch comments | `false` |
+| `--limit <n>` | Max number of comments to fetch | `20` |
+
+**Example:**
+
+```bash
+cdpx x read https://x.com/user/status/123456789
+cdpx x read https://x.com/user/status/123456789 --comments
+cdpx x read https://x.com/user/status/123456789 --comments --limit 50
+```
+
+**Result:**
+
+Returns a JSON object with the following fields.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `tweet` | `object` | The main tweet |
+| `tweet.text` | `string \| null` | Tweet text |
+| `tweet.images` | `string[]` | Image URLs |
+| `comments` | `object[]` | Comments (only present when `--comments` is specified) |
+| `comments[].text` | `string \| null` | Comment text |
+| `comments[].images` | `string[]` | Image URLs |
+
+#### `x posts`
+
+Fetch posts from a user's timeline.
+
+```bash
+cdpx x posts <id>
+```
+
+**Arguments:**
+
+| Argument | Description |
+|----------|-------------|
+| `id` | User ID (username) |
+
+**Options:**
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `--since <timestamp>` | Only return posts at or after this Unix timestamp (seconds) | — |
+| `--limit <n>` | Max number of posts to fetch | `10` |
+
+**Example:**
+
+```bash
+cdpx x posts elonmusk
+cdpx x posts elonmusk --limit 20
+cdpx x posts elonmusk --since 1700000000
+```
+
+**Result:**
+
+Returns a JSON array of post objects.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | `string` | Tweet ID |
+| `time` | `number` | Unix timestamp in seconds |
+| `text` | `string` | Tweet text |
+
 ### `weibo`
 
 Commands for weibo.com.

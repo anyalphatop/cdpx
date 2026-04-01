@@ -178,6 +178,91 @@ cdpx read https://example.com/article --settle 500
 | `lang` | `string \| null` | 内容语言 |
 | `publishedTime` | `string \| null` | 发布时间 |
 
+### `x`
+
+x.com 相关命令。
+
+#### `x read`
+
+读取一条推文及其评论（可选）。
+
+```bash
+cdpx x read <url>
+```
+
+**参数：**
+
+| 参数 | 说明 |
+|------|------|
+| `url` | 推文 URL |
+
+**选项：**
+
+| 选项 | 说明 | 默认值 |
+|------|------|--------|
+| `--comments` | 获取评论 | `false` |
+| `--limit <n>` | 最多获取评论数量 | `20` |
+
+**示例：**
+
+```bash
+cdpx x read https://x.com/user/status/123456789
+cdpx x read https://x.com/user/status/123456789 --comments
+cdpx x read https://x.com/user/status/123456789 --comments --limit 50
+```
+
+**返回结果：**
+
+返回一个 JSON 对象，包含以下字段：
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `tweet` | `object` | 主推文 |
+| `tweet.text` | `string \| null` | 推文文本 |
+| `tweet.images` | `string[]` | 图片 URL 列表 |
+| `comments` | `object[]` | 评论列表（仅在指定 `--comments` 时返回） |
+| `comments[].text` | `string \| null` | 评论文本 |
+| `comments[].images` | `string[]` | 图片 URL 列表 |
+
+#### `x posts`
+
+获取指定用户的推文列表。
+
+```bash
+cdpx x posts <id>
+```
+
+**参数：**
+
+| 参数 | 说明 |
+|------|------|
+| `id` | 用户 ID（用户名） |
+
+**选项：**
+
+| 选项 | 说明 | 默认值 |
+|------|------|--------|
+| `--since <timestamp>` | 只返回该 Unix 时间戳（秒）之后的推文 | — |
+| `--limit <n>` | 最多获取推文数量 | `10` |
+
+**示例：**
+
+```bash
+cdpx x posts elonmusk
+cdpx x posts elonmusk --limit 20
+cdpx x posts elonmusk --since 1700000000
+```
+
+**返回结果：**
+
+返回一个推文对象数组：
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `id` | `string` | 推文 ID |
+| `time` | `number` | Unix 时间戳（秒） |
+| `text` | `string` | 推文文本 |
+
 ### `weibo`
 
 微博相关命令。
