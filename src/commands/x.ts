@@ -1,5 +1,6 @@
 import { Command } from 'commander';
 import { XReadRunner } from '../runners/x/read.js';
+import { XPostsRunner } from '../runners/x/posts.js';
 
 const x = new Command('x').description('x.com');
 
@@ -13,6 +14,21 @@ x
     const result = await new XReadRunner().run({
       url,
       comments: options.comments,
+      limit: options.limit,
+    });
+    console.log(JSON.stringify(result));
+  });
+
+x
+  .command('posts')
+  .description('fetch posts from a user')
+  .argument('<userId>', 'user ID')
+  .option('--since <timestamp>', 'start time as Unix timestamp in seconds', (v) => parseInt(v, 10))
+  .option('--limit <n>', 'max number of posts to fetch', (v) => parseInt(v, 10), 10)
+  .action(async (userId: string, options: { since?: number; limit?: number }) => {
+    const result = await new XPostsRunner().run({
+      userId,
+      since: options.since,
       limit: options.limit,
     });
     console.log(JSON.stringify(result));
