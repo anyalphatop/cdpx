@@ -3,16 +3,17 @@ import { config } from '../../config.js';
 
 export interface XPostsParams {
   id: string;
-  since?: number;
-  limit?: number;
+  since?: number;  // Unix timestamp in seconds, only return tweets at or after this time
+  limit?: number;  // max number of tweets to return, default 10
 }
 
 export interface XPost {
   id: string;
-  time: number;
+  time: number;  // Unix timestamp in seconds
   text: string;
 }
 
+// Compatible with two response structures: result.tweet.legacy and result.legacy
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function parseTweet(result: any): { id: string; createdAt: string; text: string } | null {
   const tweet = result?.tweet ?? result;
@@ -28,9 +29,13 @@ function parseTweet(result: any): { id: string; createdAt: string; text: string 
 export class XPostsRunner extends PageRunner<XPostsParams, XPost[]> {
   private posts: XPost[] = [];
   private seenIds = new Set<string>();
+  // Flag set when the first UserTweets response has been fully processed
   private firstResponseDone = false;
+  // Flag set when a tweet older than `since` is found; tweets are in reverse
+  // chronological order so no subsequent tweet can satisfy the time filter
   private reachedTimeLimit = false;
 
+  // Called for each intercepted UserTweets response
   private processResponse(data: unknown): void {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const instructions: any[] =
@@ -49,6 +54,9 @@ export class XPostsRunner extends PageRunner<XPostsParams, XPost[]> {
         if (!parsed || this.seenIds.has(parsed.id)) continue;
 
         const tweetTime = Math.floor(new Date(parsed.createdAt).getTime() / 1000);
+
+        // Tweet is older than the requested start time; since the timeline is
+        // reverse chronological, mark the limit reached and skip
         if (since !== undefined && tweetTime < since) {
           this.reachedTimeLimit = true;
           continue;
@@ -70,12 +78,15 @@ export class XPostsRunner extends PageRunner<XPostsParams, XPost[]> {
 
   async navigate(): Promise<void> {
     await this.openBlankTab();
+    // Register the listener before navigating so no response is missed
     await this.client.onJsonResponse('UserTweets', (data) => this.processResponse(data));
     await this.client.navigateTo(`https://x.com/${this.params.id}`);
   }
 
   async ready(): Promise<void> {
     await this.client.waitForNetworkIdle(config.cdp.networkIdleWindow, ['video.twimg.com', 'proxsee.pscp.tv']);
+    // waitForNetworkIdle resolves on loadingFinished, but getResponseBody inside
+    // onJsonResponse is async, so poll until the first response is fully processed
     const deadline = Date.now() + config.cdp.readyTimeout;
     while (!this.firstResponseDone && Date.now() < deadline) {
       await new Promise(r => setTimeout(r, config.cdp.pollInterval));
@@ -85,11 +96,13 @@ export class XPostsRunner extends PageRunner<XPostsParams, XPost[]> {
 
   async interact(): Promise<void> {
     const limit = this.params.limit ?? 10;
+    // Keep scrolling until we have enough tweets, hit the time limit, or reach the bottom
     while (this.posts.length < limit && !this.reachedTimeLimit) {
       const prevScrollY = await this.client.eval('window.scrollY') as number;
       await this.client.eval(`window.scrollBy(0, ${config.cdp.scrollStep})`);
       await new Promise(r => setTimeout(r, config.cdp.scrollInterval));
       const newScrollY = await this.client.eval('window.scrollY') as number;
+      // scrollY unchanged means we've reached the bottom of the page
       if (newScrollY === prevScrollY) break;
     }
   }
