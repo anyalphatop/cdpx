@@ -7,41 +7,31 @@ export interface XReadParams {
   limit?: number;
 }
 
-export interface XTweet {
+export interface XPostContent {
   text: string | null;
-  images: string[];
+}
+
+export interface XCommentContent {
+  text: string | null;
 }
 
 export interface XReadResult {
-  tweet: XTweet;
-  comments?: XTweet[];
+  post: XPostContent;
+  comments?: XCommentContent[];
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function extractTweet(result: any): { id: string; text: string; images: string[] } | null {
+function extractTweet(result: any): { id: string; text: string } | null {
   const tweet = result?.tweet ?? result;
   const legacy = tweet?.legacy;
   if (!legacy || !tweet?.rest_id) return null;
-
-  const mediaItems: any[] = (legacy.extended_entities ?? legacy.entities)?.media ?? [];
-  const images: string[] = mediaItems
-    .filter((m: any) => m.type === 'photo')
-    .map((m: any) => m.media_url_https as string);
-
-  // Strip trailing t.co media URLs from full_text
-  const mediaUrls: string[] = mediaItems.map((m: any) => m.url as string).filter(Boolean);
-  let text: string = legacy.full_text ?? '';
-  for (const url of mediaUrls) {
-    text = text.replace(url, '').trim();
-  }
-
-  return { id: tweet.rest_id as string, text, images };
+  return { id: tweet.rest_id as string, text: legacy.full_text as string };
 }
 
 export class XReadRunner extends PageRunner<XReadParams, XReadResult> {
   private tweetId = '';
-  private mainTweet: XTweet = { text: null, images: [] };
-  private comments: XTweet[] = [];
+  private mainPost: XPostContent = { text: null };
+  private comments: XCommentContent[] = [];
   private seenIds = new Set<string>();
   // Flag set when the first TweetDetail response has been fully processed
   private firstResponseDone = false;
@@ -63,7 +53,7 @@ export class XReadRunner extends PageRunner<XReadParams, XReadResult> {
         if (t && !this.seenIds.has(t.id)) {
           this.seenIds.add(t.id);
           if (t.id === this.tweetId) {
-            this.mainTweet = { text: t.text, images: t.images };
+            this.mainPost = { text: t.text };
           }
         }
       // TimelineTimelineModule: grouped entries (conversation threads / comment threads)
@@ -72,7 +62,7 @@ export class XReadRunner extends PageRunner<XReadParams, XReadResult> {
           const t = extractTweet(item.item?.itemContent?.tweet_results?.result);
           if (t && !this.seenIds.has(t.id) && t.id !== this.tweetId) {
             this.seenIds.add(t.id);
-            this.comments.push({ text: t.text, images: t.images });
+            this.comments.push({ text: t.text });
           }
         }
       }
@@ -108,7 +98,7 @@ export class XReadRunner extends PageRunner<XReadParams, XReadResult> {
   }
 
   async extract(): Promise<XReadResult> {
-    const result: XReadResult = { tweet: this.mainTweet };
+    const result: XReadResult = { post: this.mainPost };
     if (this.params.comments) {
       const limit = this.params.limit ?? 20;
       result.comments = this.comments.slice(0, limit);

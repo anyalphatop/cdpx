@@ -217,12 +217,10 @@ cdpx x read https://x.com/user/status/123456789 --comments --limit 50
 
 | 字段 | 类型 | 说明 |
 |------|------|------|
-| `tweet` | `object` | 主推文 |
-| `tweet.text` | `string \| null` | 推文文本 |
-| `tweet.images` | `string[]` | 图片 URL 列表 |
+| `post` | `object` | 主推文 |
+| `post.text` | `string \| null` | 推文文本 |
 | `comments` | `object[]` | 评论列表（仅在指定 `--comments` 时返回） |
 | `comments[].text` | `string \| null` | 评论文本 |
-| `comments[].images` | `string[]` | 图片 URL 列表 |
 
 #### `x posts`
 

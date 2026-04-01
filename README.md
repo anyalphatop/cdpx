@@ -217,12 +217,10 @@ Returns a JSON object with the following fields.
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `tweet` | `object` | The main tweet |
-| `tweet.text` | `string \| null` | Tweet text |
-| `tweet.images` | `string[]` | Image URLs |
+| `post` | `object` | The main post |
+| `post.text` | `string \| null` | Post text |
 | `comments` | `object[]` | Comments (only present when `--comments` is specified) |
 | `comments[].text` | `string \| null` | Comment text |
-| `comments[].images` | `string[]` | Image URLs |
 
 #### `x posts`
 

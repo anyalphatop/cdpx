@@ -8,13 +8,13 @@ import { HotRunner } from './runners/weibo/hot.js';
 import { PostRunner } from './runners/weibo/post.js';
 import type { PostParams } from './runners/weibo/post.js';
 import { XReadRunner } from './runners/x/read.js';
-import type { XReadParams, XReadResult, XTweet } from './runners/x/read.js';
+import type { XReadParams, XReadResult, XPostContent, XCommentContent } from './runners/x/read.js';
 import { XPostsRunner } from './runners/x/posts.js';
 import type { XPostsParams, XPost } from './runners/x/posts.js';
 import { config } from './config.js';
 
 export { config };
-export type { PingResult, Tab, PostParams, XReadParams, XReadResult, XTweet, XPostsParams, XPost };
+export type { PingResult, Tab, PostParams, XReadParams, XReadResult, XPostContent, XCommentContent, XPostsParams, XPost };
 
 export const cdpx = {
   ping: () => new PingRunner().run(),
