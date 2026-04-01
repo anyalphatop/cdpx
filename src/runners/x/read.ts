@@ -44,8 +44,8 @@ export class XReadRunner extends PageRunner<XReadParams, XReadResult> {
   private mainTweet: XTweet = { text: null, images: [] };
   private comments: XTweet[] = [];
   private seenIds = new Set<string>();
-  // Count of TweetDetail responses fully processed; used to detect when data is ready
-  private receivedCount = 0;
+  // Flag set when the first TweetDetail response has been fully processed
+  private firstResponseDone = false;
 
   // Called for each intercepted TweetDetail response
   private processResponse(data: unknown): void {
@@ -79,7 +79,7 @@ export class XReadRunner extends PageRunner<XReadParams, XReadResult> {
       }
     }
 
-    this.receivedCount++;
+    this.firstResponseDone = true;
   }
 
   async navigate(): Promise<void> {
@@ -97,10 +97,10 @@ export class XReadRunner extends PageRunner<XReadParams, XReadResult> {
     // waitForNetworkIdle resolves on loadingFinished, but getResponseBody inside
     // onJsonResponse is async, so poll until at least one response is fully processed
     const deadline = Date.now() + config.cdp.readyTimeout;
-    while (Date.now() < deadline && this.receivedCount === 0) {
+    while (Date.now() < deadline && !this.firstResponseDone) {
       await new Promise(r => setTimeout(r, config.cdp.pollInterval));
     }
-    if (this.receivedCount === 0) throw new Error('No TweetDetail response received');
+    if (!this.firstResponseDone) throw new Error('No TweetDetail response received');
   }
 
   async interact(): Promise<void> {
@@ -114,7 +114,7 @@ export class XReadRunner extends PageRunner<XReadParams, XReadResult> {
       const prevScrollY = await this.client.eval('window.scrollY') as number;
 
       await this.client.eval(`window.scrollBy(0, ${scrollStep})`);
-      await new Promise(r => setTimeout(r, 1500));
+      await new Promise(r => setTimeout(r, config.cdp.scrollInterval));
 
       const newScrollY = await this.client.eval('window.scrollY') as number;
       // scrollY unchanged after scroll means page bottom; require 3 consecutive
