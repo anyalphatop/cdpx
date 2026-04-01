@@ -88,6 +88,7 @@ export class XPostsRunner extends PageRunner<XPostsParams, XPost[]> {
     while (this.posts.length < limit && !this.reachedTimeLimit) {
       const prevScrollY = await this.client.eval('window.scrollY') as number;
       await this.client.eval(`window.scrollBy(0, ${config.cdp.scrollStep})`);
+      await new Promise(r => setTimeout(r, config.cdp.scrollInterval));
       const newScrollY = await this.client.eval('window.scrollY') as number;
       if (newScrollY === prevScrollY) break;
     }
