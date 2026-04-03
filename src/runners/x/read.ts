@@ -11,6 +11,8 @@ export interface XPostContent {
   type: 'post' | 'article';
   title: string | null;
   text: string | null;
+  cover: string | null;
+  images: string[];
 }
 
 export interface XCommentContent {
@@ -23,7 +25,7 @@ export interface XReadResult {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function extractTweet(result: any): { id: string; type: 'post' | 'article'; title: string | null; text: string } | null {
+function extractTweet(result: any): { id: string; type: 'post' | 'article'; title: string | null; text: string; cover: string | null; images: string[] } | null {
   const tweet = result?.tweet ?? result;
   const legacy = tweet?.legacy;
   if (!legacy || !tweet?.rest_id) return null;
@@ -35,11 +37,54 @@ function extractTweet(result: any): { id: string; type: 'post' | 'article'; titl
   const blocks: any[] = articleResult?.content_state?.blocks ?? [];
   if (blocks.length > 0) {
     const title: string | null = articleResult?.title ?? null;
-    const text = blocks.map((b: any) => b.text as string).filter(Boolean).join('\n\n');
-    return { id: tweet.rest_id as string, type: 'article', title, text };
+
+    // Cover image
+    const cover: string | null = articleResult?.cover_media?.media_info?.original_img_url ?? null;
+
+    // Build a mediaId -> URL map from media_entities
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const mediaIdToUrl: Record<string, string> = {};
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    for (const entity of (articleResult?.media_entities ?? []) as any[]) {
+      const url = entity?.media_info?.original_img_url;
+      if (entity?.media_id && url) mediaIdToUrl[entity.media_id] = url;
+    }
+
+    // Build entityKey -> image URL map from entityMap (type: MEDIA)
+    const entityKeyToUrl: Record<string, string> = {};
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    for (const entry of (articleResult?.content_state?.entityMap ?? []) as any[]) {
+      if (entry?.value?.type === 'MEDIA') {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        for (const item of (entry.value.data?.mediaItems ?? []) as any[]) {
+          const url = mediaIdToUrl[item.mediaId];
+          if (url) entityKeyToUrl[entry.key] = url;
+        }
+      }
+    }
+
+    // Process blocks in order: text blocks become paragraphs, atomic blocks insert image URLs
+    const parts: string[] = [];
+    const images: string[] = [];
+    for (const block of blocks) {
+      if (block.type === 'atomic') {
+        // Resolve image URL via the first entityRange key
+        const key = String(block.entityRanges?.[0]?.key ?? '');
+        const url = entityKeyToUrl[key];
+        if (url) {
+          parts.push(url);
+          images.push(url);
+        }
+      } else if (block.text) {
+        parts.push(block.text as string);
+      }
+    }
+
+    const text = parts.join('\n\n');
+    return { id: tweet.rest_id as string, type: 'article', title, text, cover, images };
   }
 
-  return { id: tweet.rest_id as string, type: 'post', title: null, text: legacy.full_text as string };
+  return { id: tweet.rest_id as string, type: 'post', title: null, text: legacy.full_text as string, cover: null, images: [] };
 }
 
 // Reply tweets start with one or more @mention prefixes (e.g. "@user1 @user2 text").
@@ -50,7 +95,7 @@ function stripReplyPrefix(text: string): string {
 
 export class XReadRunner extends PageRunner<XReadParams, XReadResult> {
   private tweetId = '';
-  private mainPost: XPostContent = { type: 'post', title: null, text: null };
+  private mainPost: XPostContent = { type: 'post', title: null, text: null, cover: null, images: [] };
   private comments: XCommentContent[] = [];
   private seenIds = new Set<string>();
   // Flag set when the first TweetDetail response has been fully processed
@@ -73,7 +118,7 @@ export class XReadRunner extends PageRunner<XReadParams, XReadResult> {
         if (t && !this.seenIds.has(t.id)) {
           this.seenIds.add(t.id);
           if (t.id === this.tweetId) {
-            this.mainPost = { type: t.type, title: t.title, text: t.text };
+            this.mainPost = { type: t.type, title: t.title, text: t.text, cover: t.cover, images: t.images };
           }
         }
       // TimelineTimelineModule: grouped entries (conversation threads / comment threads)
