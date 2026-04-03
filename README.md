@@ -226,7 +226,9 @@ Returns a JSON object with the following fields.
 | `post.title` | `string \| null` | Title (article type only) |
 | `post.text` | `string \| null` | Post text. For article posts, image URLs are embedded inline at their original positions |
 | `post.cover` | `string \| null` | Cover image URL (article type only) |
+| `post.cover_path` | `string \| null` | Local path of the downloaded cover image (only when `--save-images` is specified) |
 | `post.images` | `string[] \| null` | Body image URLs (article type only) |
+| `post.images_path` | `string[] \| null` | Local paths of the downloaded body images (only when `--save-images` is specified) |
 | `comments` | `object[]` | Comments (only present when `--comments` is specified) |
 | `comments[].text` | `string \| null` | Comment text |
 

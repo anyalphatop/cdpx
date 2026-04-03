@@ -17,7 +17,9 @@ export interface XPostContent {
   title: string | null;
   text: string | null;
   cover: string | null;
+  cover_path: string | null;
   images: string[] | null;
+  images_path: string[] | null;
 }
 
 export interface XCommentContent {
@@ -100,7 +102,7 @@ function stripReplyPrefix(text: string): string {
 
 export class XReadRunner extends PageRunner<XReadParams, XReadResult> {
   private tweetId = '';
-  private mainPost: XPostContent = { type: 'post', title: null, text: null, cover: null, images: null };
+  private mainPost: XPostContent = { type: 'post', title: null, text: null, cover: null, cover_path: null, images: null, images_path: null };
   private comments: XCommentContent[] = [];
   private seenIds = new Set<string>();
   // Flag set when the first TweetDetail response has been fully processed
@@ -123,7 +125,7 @@ export class XReadRunner extends PageRunner<XReadParams, XReadResult> {
         if (t && !this.seenIds.has(t.id)) {
           this.seenIds.add(t.id);
           if (t.id === this.tweetId) {
-            this.mainPost = { type: t.type, title: t.title, text: t.text, cover: t.cover, images: t.images };
+            this.mainPost = { type: t.type, title: t.title, text: t.text, cover: t.cover, cover_path: null, images: t.images, images_path: null };
           }
         }
       // TimelineTimelineModule: grouped entries (conversation threads / comment threads)
@@ -178,12 +180,23 @@ export class XReadRunner extends PageRunner<XReadParams, XReadResult> {
     if (this.params.saveImages) {
       const saveDir = this.params.saveDir ?? path.join(os.homedir(), 'Downloads');
       await fs.mkdir(saveDir, { recursive: true });
-      const urls: string[] = [];
-      if (this.mainPost.cover) urls.push(this.mainPost.cover);
-      if (this.mainPost.images) urls.push(...this.mainPost.images);
-      for (const url of urls) {
-        const filename = path.basename(new URL(url).pathname);
-        await this.client.downloadFile(url, path.join(saveDir, filename));
+
+      if (this.mainPost.cover) {
+        const filename = path.basename(new URL(this.mainPost.cover).pathname);
+        const destPath = path.join(saveDir, filename);
+        await this.client.downloadFile(this.mainPost.cover, destPath);
+        this.mainPost.cover_path = destPath;
+      }
+
+      if (this.mainPost.images) {
+        const imagePaths: string[] = [];
+        for (const url of this.mainPost.images) {
+          const filename = path.basename(new URL(url).pathname);
+          const destPath = path.join(saveDir, filename);
+          await this.client.downloadFile(url, destPath);
+          imagePaths.push(destPath);
+        }
+        this.mainPost.images_path = imagePaths;
       }
     }
 

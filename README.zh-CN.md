@@ -226,7 +226,9 @@ cdpx x read https://x.com/user/status/123456789 --save-images --save-dir /tmp/im
 | `post.title` | `string \| null` | 标题（仅 article 类型有值） |
 | `post.text` | `string \| null` | 推文文本。article 类型中，图片 URL 会按原始位置内嵌在文本中 |
 | `post.cover` | `string \| null` | 封面图 URL（仅 article 类型有值） |
+| `post.cover_path` | `string \| null` | 封面图本地路径（仅指定 `--save-images` 时有值） |
 | `post.images` | `string[] \| null` | 正文图片 URL 列表（仅 article 类型有值） |
+| `post.images_path` | `string[] \| null` | 正文图片本地路径列表（仅指定 `--save-images` 时有值） |
 | `comments` | `object[]` | 评论列表（仅在指定 `--comments` 时返回） |
 | `comments[].text` | `string \| null` | 评论文本 |
 
