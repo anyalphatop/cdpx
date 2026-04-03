@@ -1,3 +1,4 @@
+import fs from 'fs/promises';
 import WebSocket from 'ws';
 import { config } from '../config.js';
 
@@ -269,6 +270,12 @@ export class CdpClient {
       `;
       this.ws.send(JSON.stringify({ id, method: 'Runtime.evaluate', params: { expression, awaitPromise: true, returnByValue: true } }));
     });
+  }
+
+  // Fetch a URL via the browser and write the response body to a local file.
+  async downloadFile(url: string, destPath: string): Promise<void> {
+    const base64 = await this.fetchAsBase64(url);
+    await fs.writeFile(destPath, Buffer.from(base64, 'base64'));
   }
 
   async close(): Promise<void> {

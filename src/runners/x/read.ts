@@ -183,8 +183,7 @@ export class XReadRunner extends PageRunner<XReadParams, XReadResult> {
       if (this.mainPost.images) urls.push(...this.mainPost.images);
       for (const url of urls) {
         const filename = path.basename(new URL(url).pathname);
-        const base64 = await this.client.fetchAsBase64(url);
-        await fs.writeFile(path.join(saveDir, filename), Buffer.from(base64, 'base64'));
+        await this.client.downloadFile(url, path.join(saveDir, filename));
       }
     }
 
