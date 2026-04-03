@@ -202,6 +202,8 @@ cdpx x read <url>
 |--------|-------------|---------|
 | `--comments` | Fetch comments | `false` |
 | `--limit <n>` | Max number of comments to fetch | `20` |
+| `--save-images` | Download images to local disk | `false` |
+| `--save-dir <dir>` | Directory to save images | `~/Downloads` |
 
 **Example:**
 
@@ -209,6 +211,8 @@ cdpx x read <url>
 cdpx x read https://x.com/user/status/123456789
 cdpx x read https://x.com/user/status/123456789 --comments
 cdpx x read https://x.com/user/status/123456789 --comments --limit 50
+cdpx x read https://x.com/user/status/123456789 --save-images
+cdpx x read https://x.com/user/status/123456789 --save-images --save-dir /tmp/images
 ```
 
 **Result:**

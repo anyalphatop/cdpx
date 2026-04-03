@@ -202,6 +202,8 @@ cdpx x read <url>
 |------|------|--------|
 | `--comments` | 获取评论 | `false` |
 | `--limit <n>` | 最多获取评论数量 | `20` |
+| `--save-images` | 下载图片到本地 | `false` |
+| `--save-dir <dir>` | 图片保存目录 | `~/Downloads` |
 
 **示例：**
 
@@ -209,6 +211,8 @@ cdpx x read <url>
 cdpx x read https://x.com/user/status/123456789
 cdpx x read https://x.com/user/status/123456789 --comments
 cdpx x read https://x.com/user/status/123456789 --comments --limit 50
+cdpx x read https://x.com/user/status/123456789 --save-images
+cdpx x read https://x.com/user/status/123456789 --save-images --save-dir /tmp/images
 ```
 
 **返回结果：**

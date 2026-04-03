@@ -10,11 +10,15 @@ x
   .argument('<url>', 'post URL')
   .option('--comments', 'fetch comments')
   .option('--limit <n>', 'max number of comments to fetch', (v) => parseInt(v, 10), 20)
-  .action(async (url: string, options: { comments?: boolean; limit?: number }) => {
+  .option('--save-images', 'download images to local disk')
+  .option('--save-dir <dir>', 'directory to save images (default: ~/Downloads)')
+  .action(async (url: string, options: { comments?: boolean; limit?: number; saveImages?: boolean; saveDir?: string }) => {
     const result = await new XReadRunner().run({
       url,
       comments: options.comments,
       limit: options.limit,
+      saveImages: options.saveImages,
+      saveDir: options.saveDir,
     });
     console.log(JSON.stringify(result));
   });

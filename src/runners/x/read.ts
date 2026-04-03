@@ -1,3 +1,6 @@
+import fs from 'fs/promises';
+import os from 'os';
+import path from 'path';
 import { PageRunner } from '../../page-runner.js';
 import { config } from '../../config.js';
 
@@ -5,6 +8,8 @@ export interface XReadParams {
   url: string;
   comments?: boolean;
   limit?: number;
+  saveImages?: boolean;
+  saveDir?: string;
 }
 
 export interface XPostContent {
@@ -168,6 +173,21 @@ export class XReadRunner extends PageRunner<XReadParams, XReadResult> {
       const limit = this.params.limit ?? 20;
       result.comments = this.comments.slice(0, limit);
     }
+
+    // Download cover and body images via the browser's network environment
+    if (this.params.saveImages) {
+      const saveDir = this.params.saveDir ?? path.join(os.homedir(), 'Downloads');
+      await fs.mkdir(saveDir, { recursive: true });
+      const urls: string[] = [];
+      if (this.mainPost.cover) urls.push(this.mainPost.cover);
+      if (this.mainPost.images) urls.push(...this.mainPost.images);
+      for (const url of urls) {
+        const filename = path.basename(new URL(url).pathname);
+        const base64 = await this.client.fetchAsBase64(url);
+        await fs.writeFile(path.join(saveDir, filename), Buffer.from(base64, 'base64'));
+      }
+    }
+
     return result;
   }
 }

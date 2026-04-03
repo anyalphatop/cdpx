@@ -242,6 +242,35 @@ export class CdpClient {
     await this.send('DOM.setFileInputFiles', { nodeId, files });
   }
 
+  // Fetch a URL via the browser (inheriting its network/proxy config) and return raw bytes as base64.
+  async fetchAsBase64(url: string): Promise<string> {
+    const id = this._seq++;
+    return new Promise((resolve, reject) => {
+      const handler = (raw: WebSocket.RawData) => {
+        const msg = JSON.parse(raw.toString()) as { id: number; result: { result: { subtype?: string; description?: string; value?: unknown } } };
+        if (msg.id !== id) return;
+        this.ws.off('message', handler);
+        if (msg.result?.result?.subtype === 'error') reject(new Error(msg.result.result.description));
+        else resolve(msg.result?.result?.value as string);
+      };
+      this.ws.on('message', handler);
+      // Use browser fetch + FileReader to convert binary to base64
+      const expression = `
+        (async () => {
+          const res = await fetch(${JSON.stringify(url)});
+          const buf = await res.arrayBuffer();
+          const bytes = new Uint8Array(buf);
+          let bin = '';
+          for (let i = 0; i < bytes.byteLength; i += 8192) {
+            bin += String.fromCharCode(...bytes.subarray(i, i + 8192));
+          }
+          return btoa(bin);
+        })()
+      `;
+      this.ws.send(JSON.stringify({ id, method: 'Runtime.evaluate', params: { expression, awaitPromise: true, returnByValue: true } }));
+    });
+  }
+
   async close(): Promise<void> {
     this.ws.close();
     const { host, port, timeout } = config.cdp;
