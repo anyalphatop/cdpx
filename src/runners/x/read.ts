@@ -12,7 +12,7 @@ export interface XPostContent {
   title: string | null;
   text: string | null;
   cover: string | null;
-  images: string[];
+  images: string[] | null;
 }
 
 export interface XCommentContent {
@@ -25,7 +25,7 @@ export interface XReadResult {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function extractTweet(result: any): { id: string; type: 'post' | 'article'; title: string | null; text: string; cover: string | null; images: string[] } | null {
+function extractTweet(result: any): { id: string; type: 'post' | 'article'; title: string | null; text: string; cover: string | null; images: string[] | null } | null {
   const tweet = result?.tweet ?? result;
   const legacy = tweet?.legacy;
   if (!legacy || !tweet?.rest_id) return null;
@@ -84,7 +84,7 @@ function extractTweet(result: any): { id: string; type: 'post' | 'article'; titl
     return { id: tweet.rest_id as string, type: 'article', title, text, cover, images };
   }
 
-  return { id: tweet.rest_id as string, type: 'post', title: null, text: legacy.full_text as string, cover: null, images: [] };
+  return { id: tweet.rest_id as string, type: 'post', title: null, text: legacy.full_text as string, cover: null, images: null };
 }
 
 // Reply tweets start with one or more @mention prefixes (e.g. "@user1 @user2 text").
@@ -95,7 +95,7 @@ function stripReplyPrefix(text: string): string {
 
 export class XReadRunner extends PageRunner<XReadParams, XReadResult> {
   private tweetId = '';
-  private mainPost: XPostContent = { type: 'post', title: null, text: null, cover: null, images: [] };
+  private mainPost: XPostContent = { type: 'post', title: null, text: null, cover: null, images: null };
   private comments: XCommentContent[] = [];
   private seenIds = new Set<string>();
   // Flag set when the first TweetDetail response has been fully processed

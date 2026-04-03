@@ -222,7 +222,7 @@ Returns a JSON object with the following fields.
 | `post.title` | `string \| null` | Title (article type only) |
 | `post.text` | `string \| null` | Post text. For article posts, image URLs are embedded inline at their original positions |
 | `post.cover` | `string \| null` | Cover image URL (article type only) |
-| `post.images` | `string[]` | Body image URLs (article type only) |
+| `post.images` | `string[] \| null` | Body image URLs (article type only) |
 | `comments` | `object[]` | Comments (only present when `--comments` is specified) |
 | `comments[].text` | `string \| null` | Comment text |
 
