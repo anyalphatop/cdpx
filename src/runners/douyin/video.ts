@@ -1,6 +1,6 @@
-import { chromium } from 'playwright-core';
 import type { Runner } from '../../runner.js';
 import { config } from '../../config.js';
+import { getBrowser } from '../../cdp/browser.js';
 
 export interface DouyinVideoDownloadLinkParams {
   // 抖音分享链接，支持 v.douyin.com 短链或完整链接
@@ -13,14 +13,8 @@ export interface DouyinVideoDownloadLinkResult {
 
 export class DouyinVideoDownloadLinkRunner implements Runner<DouyinVideoDownloadLinkParams, DouyinVideoDownloadLinkResult> {
   async run(params: DouyinVideoDownloadLinkParams): Promise<DouyinVideoDownloadLinkResult> {
-    const { host, port } = config.cdp;
-
-    // 通过 CDP 连接已运行的 Chrome 实例
-    // 手动 fetch WebSocket URL，避免 Playwright 内部访问 /json/version/ 时 Chrome 返回 400
-    const versionResp = await fetch(`http://${host}:${port}/json/version`);
-    const { webSocketDebuggerUrl } = await versionResp.json() as { webSocketDebuggerUrl: string };
-    const browser = await chromium.connectOverCDP(webSocketDebuggerUrl);
-
+    // 获取共享 browser 实例，避免每次调用重复建立 CDP 连接
+    const browser = await getBrowser();
     const context = browser.contexts()[0] ?? await browser.newContext();
     const page = await context.newPage();
     try {
@@ -55,7 +49,6 @@ export class DouyinVideoDownloadLinkRunner implements Runner<DouyinVideoDownload
       return { link: downloadUrl };
     } finally {
       await page.close();
-      await browser.close();
     }
   }
 }
