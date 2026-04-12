@@ -8,7 +8,7 @@ export interface DouyinVideoDownloadLinkParams {
 }
 
 export interface DouyinVideoDownloadLinkResult {
-  downloadUrl: string;
+  link: string;
 }
 
 export class DouyinVideoDownloadLinkRunner implements Runner<DouyinVideoDownloadLinkParams, DouyinVideoDownloadLinkResult> {
@@ -52,7 +52,7 @@ export class DouyinVideoDownloadLinkRunner implements Runner<DouyinVideoDownload
       }, body);
 
       if (!downloadUrl) throw new Error('Download link not found in response');
-      return { downloadUrl };
+      return { link: downloadUrl };
     } finally {
       await page.close();
       await browser.close();

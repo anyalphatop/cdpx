@@ -300,7 +300,7 @@ Returns a JSON object with the following fields.
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `downloadUrl` | `string` | Direct MP4 download URL |
+| `link` | `string` | Direct MP4 download URL |
 
 ### `weibo`
 

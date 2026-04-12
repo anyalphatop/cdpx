@@ -300,7 +300,7 @@ cdpx douyin video get-download-link "https://v.douyin.com/e57Hz45rJrA/"
 
 | 字段 | 类型 | 说明 |
 |------|------|------|
-| `downloadUrl` | `string` | MP4 直链下载地址 |
+| `link` | `string` | MP4 直链下载地址 |
 
 ### `weibo`
 
