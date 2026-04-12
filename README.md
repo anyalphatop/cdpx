@@ -270,6 +270,38 @@ Returns a JSON array of post objects.
 | `time` | `number` | Unix timestamp in seconds |
 | `text` | `string` | Tweet text |
 
+### `douyin`
+
+Commands for Douyin (抖音).
+
+#### `douyin video get-download-link`
+
+Get the MP4 download link for a Douyin video.
+
+```bash
+cdpx douyin video get-download-link <url>
+```
+
+**Arguments:**
+
+| Argument | Description |
+|----------|-------------|
+| `url` | Douyin share URL (e.g. `https://v.douyin.com/xxx/`) |
+
+**Example:**
+
+```bash
+cdpx douyin video get-download-link "https://v.douyin.com/e57Hz45rJrA/"
+```
+
+**Result:**
+
+Returns a JSON object with the following fields.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `downloadUrl` | `string` | Direct MP4 download URL |
+
 ### `weibo`
 
 Commands for weibo.com.

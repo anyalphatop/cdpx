@@ -270,6 +270,38 @@ cdpx x posts elonmusk --since 1700000000
 | `time` | `number` | Unix 时间戳（秒） |
 | `text` | `string` | 推文文本 |
 
+### `douyin`
+
+抖音相关命令。
+
+#### `douyin video get-download-link`
+
+获取抖音视频的 MP4 下载链接。
+
+```bash
+cdpx douyin video get-download-link <url>
+```
+
+**参数：**
+
+| 参数 | 说明 |
+|------|------|
+| `url` | 抖音分享链接（如 `https://v.douyin.com/xxx/`） |
+
+**示例：**
+
+```bash
+cdpx douyin video get-download-link "https://v.douyin.com/e57Hz45rJrA/"
+```
+
+**返回结果：**
+
+返回一个 JSON 对象，包含以下字段：
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `downloadUrl` | `string` | MP4 直链下载地址 |
+
 ### `weibo`
 
 微博相关命令。
