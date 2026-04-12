@@ -39,9 +39,9 @@ cdpx ping --host 127.0.0.1 --port 9222
 
 | 字段 | 类型 | 说明 |
 |------|------|------|
-| `browser` | `string` | 连接地址（如 `http://localhost:9222`） |
-| `browserType` | `string` | 浏览器类型（如 `chromium`） |
-| `version` | `string` | 浏览器版本（如 `131.0.0.0`） |
+| `browser` | `string` | 连接地址 |
+| `browserType` | `string` | 浏览器类型 |
+| `version` | `string` | 浏览器版本 |
 | `error` | `string` | 连接失败时的错误信息 |
 
 ### `tabs`

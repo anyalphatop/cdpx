@@ -39,9 +39,9 @@ cdpx ping --host 127.0.0.1 --port 9222
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `browser` | `string` | Connection URL (e.g. `http://localhost:9222`) |
-| `browserType` | `string` | Browser type (e.g. `chromium`) |
-| `version` | `string` | Browser version (e.g. `131.0.0.0`) |
+| `browser` | `string` | Connection URL |
+| `browserType` | `string` | Browser type |
+| `version` | `string` | Browser version |
 | `error` | `string` | Error message if connection failed |
 
 ### `tabs`
