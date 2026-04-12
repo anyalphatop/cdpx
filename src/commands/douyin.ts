@@ -1,7 +1,10 @@
 import { Command } from 'commander';
 import { DouyinVideoDownloadLinkRunner } from '../runners/douyin/video.js';
 
+const douyin = new Command('douyin').description('Douyin operations');
+
 const video = new Command('video').description('Douyin video operations');
+douyin.addCommand(video);
 
 video
   .command('get-download-link')
@@ -11,8 +14,5 @@ video
     const result = await new DouyinVideoDownloadLinkRunner().run({ url });
     console.log(result);
   });
-
-const douyin = new Command('douyin').description('Douyin operations');
-douyin.addCommand(video);
 
 export { douyin };
