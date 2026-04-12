@@ -16,3 +16,7 @@ export async function getBrowser(timeout?: number): Promise<Browser> {
   browser.on('disconnected', () => { browser = null; });
   return browser;
 }
+
+export async function closeBrowser(): Promise<void> {
+  if (browser) await browser.close();
+}

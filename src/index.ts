@@ -10,6 +10,7 @@ import { domains } from './commands/domains.js';
 import { weibo } from './commands/weibo.js';
 import { x } from './commands/x.js';
 import { douyin } from './commands/douyin.js';
+import { closeBrowser } from './cdp/browser.js';
 
 const require = createRequire(import.meta.url);
 const { version } = require('../package.json') as { version: string };
@@ -30,4 +31,5 @@ program.addCommand(weibo);
 program.addCommand(x);
 program.addCommand(douyin);
 
-program.parse();
+// 命令执行完后断开 CDP 连接，避免进程挂起
+program.parseAsync().finally(() => closeBrowser());
