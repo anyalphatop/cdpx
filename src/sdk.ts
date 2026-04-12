@@ -11,12 +11,12 @@ import { XReadRunner } from './runners/x/read.js';
 import type { XReadParams, XReadResult, XPostContent, XCommentContent } from './runners/x/read.js';
 import { XPostsRunner } from './runners/x/posts.js';
 import type { XPostsParams, XPost } from './runners/x/posts.js';
-import { DouyinVideoRunner } from './runners/douyin/video.js';
-import type { DouyinVideoParams, DouyinVideoResult } from './runners/douyin/video.js';
+import { DouyinVideoDownloadLinkRunner } from './runners/douyin/video.js';
+import type { DouyinVideoDownloadLinkParams, DouyinVideoDownloadLinkResult } from './runners/douyin/video.js';
 import { config } from './config.js';
 
 export { config };
-export type { PingResult, Tab, PostParams, XReadParams, XReadResult, XPostContent, XCommentContent, XPostsParams, XPost, DouyinVideoParams, DouyinVideoResult };
+export type { PingResult, Tab, PostParams, XReadParams, XReadResult, XPostContent, XCommentContent, XPostsParams, XPost, DouyinVideoDownloadLinkParams, DouyinVideoDownloadLinkResult };
 
 export const cdpx = {
   ping: () => new PingRunner().run(),
@@ -32,7 +32,7 @@ export const cdpx = {
   },
   douyin: {
     video: {
-      getDownloadLink: (params: DouyinVideoParams) => new DouyinVideoRunner().run(params),
+      getDownloadLink: (params: DouyinVideoDownloadLinkParams) => new DouyinVideoDownloadLinkRunner().run(params),
     },
   },
 };

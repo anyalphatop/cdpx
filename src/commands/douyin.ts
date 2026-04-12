@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { DouyinVideoRunner } from '../runners/douyin/video.js';
+import { DouyinVideoDownloadLinkRunner } from '../runners/douyin/video.js';
 
 const video = new Command('video').description('Douyin video operations');
 
@@ -8,7 +8,7 @@ video
   .description('Get the MP4 download link for a Douyin video')
   .argument('<url>', 'Douyin share URL')
   .action(async (url: string) => {
-    const result = await new DouyinVideoRunner().run({ url });
+    const result = await new DouyinVideoDownloadLinkRunner().run({ url });
     console.log(result.downloadUrl);
   });
 
