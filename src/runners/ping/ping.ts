@@ -14,7 +14,11 @@ export class PingRunner {
     const url = `http://${host}:${port}`;
 
     try {
-      const browser = await chromium.connectOverCDP(url, { timeout });
+      // Fetch the WebSocket URL from /json/version to avoid trailing-slash 400 issue
+      const res = await fetch(`${url}/json/version`, { signal: AbortSignal.timeout(timeout) });
+      const { webSocketDebuggerUrl } = await res.json() as { webSocketDebuggerUrl: string };
+
+      const browser = await chromium.connectOverCDP(webSocketDebuggerUrl, { timeout });
       const browserType = browser.browserType().name();
       const version = browser.version();
       await browser.close();
