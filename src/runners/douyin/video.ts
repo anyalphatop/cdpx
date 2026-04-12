@@ -45,8 +45,7 @@ export class DouyinVideoDownloadLinkRunner implements Runner<DouyinVideoDownload
         return null;
       }, body);
 
-      if (!downloadUrl) throw new Error('Download link not found in response');
-      return { link: downloadUrl };
+      return { link: downloadUrl ?? '' };
     } finally {
       await page.close();
     }
