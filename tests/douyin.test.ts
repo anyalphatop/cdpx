@@ -7,4 +7,4 @@ test('douyin video get-download-link', async () => {
   });
 
   expect(result.link).toMatch(/^https:\/\//);
-}, 30000);
+});
