@@ -1,4 +1,4 @@
-import { CdpClient } from '../../cdp/client.js';
+import { chromium } from 'playwright-core';
 import type { Runner } from '../../runner.js';
 import { config } from '../../config.js';
 
@@ -13,47 +13,48 @@ export interface DouyinVideoDownloadLinkResult {
 
 export class DouyinVideoDownloadLinkRunner implements Runner<DouyinVideoDownloadLinkParams, DouyinVideoDownloadLinkResult> {
   async run(params: DouyinVideoDownloadLinkParams): Promise<DouyinVideoDownloadLinkResult> {
-    // 打开 savetik 页面，利用其浏览器上下文绕过 Cloudflare 验证
-    const client = await CdpClient.open('https://savetik.co/en2');
+    const { host, port } = config.cdp;
+
+    // 通过 CDP 连接已运行的 Chrome 实例
+    const versionResp = await fetch(`http://${host}:${port}/json/version`);
+    const { webSocketDebuggerUrl } = await versionResp.json() as { webSocketDebuggerUrl: string };
+    const browser = await chromium.connectOverCDP(webSocketDebuggerUrl);
+
+    const context = browser.contexts()[0] ?? await browser.newContext();
+    const page = await context.newPage();
     try {
+      await page.goto('https://savetik.co/en2', { waitUntil: 'load' });
+
       // 等待输入框出现，确保 Cloudflare cookie 已写入
-      await client.pollFor(`document.querySelectorAll('#s_input').length`, config.cdp.readyTimeout);
+      await page.waitForSelector('#s_input', { timeout: config.cdp.readyTimeout });
 
       // 在页面上下文中调用 ajaxSearch 接口，自动携带 cookie
-      // eval 不支持 async，用全局变量 + pollFor 等待异步结果
       const body = new URLSearchParams({ q: params.url, lang: 'en', cftoken: '' }).toString();
-      await client.eval(`
-        window.__douyinDownloadUrl = null;
-        (async () => {
-          const res = await fetch('/api/ajaxSearch', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-              'X-Requested-With': 'XMLHttpRequest',
-            },
-            body: ${JSON.stringify(body)},
-          });
-          const json = await res.json();
-          if (json.status !== 'ok') return;
-          // 解析响应 HTML，找到文本含 "Download MP4 [" 的下载链接
-          const doc = new DOMParser().parseFromString(json.data, 'text/html');
-          for (const a of doc.querySelectorAll('a')) {
-            if (a.textContent.includes('Download MP4 [')) {
-              window.__douyinDownloadUrl = a.href;
-              return;
-            }
-          }
-        })();
-      `);
+      const downloadUrl = await page.evaluate(async (body) => {
+        const res = await fetch('/api/ajaxSearch', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+            'X-Requested-With': 'XMLHttpRequest',
+          },
+          body,
+        });
+        const json = await res.json() as { status: string; data: string };
+        if (json.status !== 'ok') throw new Error('ajaxSearch failed: ' + json.status);
 
-      // 等待异步操作完成（结果写入 window.__douyinDownloadUrl）
-      await client.pollFor(`window.__douyinDownloadUrl ? 1 : 0`, config.cdp.readyTimeout);
-      const downloadUrl = await client.eval(`window.__douyinDownloadUrl`) as string | null;
+        // 解析响应 HTML，找到文本含 "Download MP4 [" 的下载链接
+        const doc = new DOMParser().parseFromString(json.data, 'text/html');
+        for (const a of doc.querySelectorAll('a')) {
+          if (a.textContent?.includes('Download MP4 [')) return a.href;
+        }
+        return null;
+      }, body);
 
       if (!downloadUrl) throw new Error('Download link not found in response');
       return { downloadUrl };
     } finally {
-      await client.close().catch(() => {});
+      await page.close();
+      await browser.close();
     }
   }
 }
