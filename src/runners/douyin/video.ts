@@ -16,6 +16,7 @@ export class DouyinVideoDownloadLinkRunner implements Runner<DouyinVideoDownload
     const { host, port } = config.cdp;
 
     // 通过 CDP 连接已运行的 Chrome 实例
+    // 手动 fetch WebSocket URL，避免 Playwright 内部访问 /json/version/ 时 Chrome 返回 400
     const versionResp = await fetch(`http://${host}:${port}/json/version`);
     const { webSocketDebuggerUrl } = await versionResp.json() as { webSocketDebuggerUrl: string };
     const browser = await chromium.connectOverCDP(webSocketDebuggerUrl);
