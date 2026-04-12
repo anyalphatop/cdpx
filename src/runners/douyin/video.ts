@@ -1,5 +1,6 @@
 import { CdpClient } from '../../cdp/client.js';
 import type { Runner } from '../../runner.js';
+import { config } from '../../config.js';
 
 export interface DouyinVideoDownloadLinkParams {
   // 抖音分享链接，支持 v.douyin.com 短链或完整链接
@@ -16,7 +17,7 @@ export class DouyinVideoDownloadLinkRunner implements Runner<DouyinVideoDownload
     const client = await CdpClient.open('https://savetik.co/en2');
     try {
       // 等待输入框出现，确保 Cloudflare cookie 已写入
-      await client.pollFor(`document.querySelectorAll('#s_input').length`, 15000);
+      await client.pollFor(`document.querySelectorAll('#s_input').length`, config.cdp.readyTimeout);
 
       // 在页面上下文中调用 ajaxSearch 接口，自动携带 cookie
       // eval 不支持 async，用全局变量 + pollFor 等待异步结果
@@ -46,7 +47,7 @@ export class DouyinVideoDownloadLinkRunner implements Runner<DouyinVideoDownload
       `);
 
       // 等待异步操作完成（结果写入 window.__douyinDownloadUrl）
-      await client.pollFor(`window.__douyinDownloadUrl ? 1 : 0`, 15000);
+      await client.pollFor(`window.__douyinDownloadUrl ? 1 : 0`, config.cdp.readyTimeout);
       const downloadUrl = await client.eval(`window.__douyinDownloadUrl`) as string | null;
 
       if (!downloadUrl) throw new Error('Download link not found in response');
