@@ -9,7 +9,7 @@ video
   .argument('<url>', 'Douyin share URL')
   .action(async (url: string) => {
     const result = await new DouyinVideoDownloadLinkRunner().run({ url });
-    console.log(result.downloadUrl);
+    console.log(result);
   });
 
 const douyin = new Command('douyin').description('Douyin operations');
