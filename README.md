@@ -39,10 +39,8 @@ cdpx ping --host 127.0.0.1 --port 9222
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `connected` | `boolean` | Whether the connection succeeded |
-| `browser` | `string` | Browser name and version (e.g. `Chrome/131.0.0.0`) |
-| `protocolVersion` | `string` | CDP protocol version (e.g. `1.3`) |
-| `webSocketDebuggerUrl` | `string` | WebSocket URL for the debugger |
+| `browser` | `string` | Browser type (e.g. `chromium`) |
+| `version` | `string` | Browser version (e.g. `131.0.0.0`) |
 | `error` | `string` | Error message if connection failed |
 
 ### `tabs`

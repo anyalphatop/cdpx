@@ -39,10 +39,8 @@ cdpx ping --host 127.0.0.1 --port 9222
 
 | 字段 | 类型 | 说明 |
 |------|------|------|
-| `connected` | `boolean` | 是否连接成功 |
-| `browser` | `string` | 浏览器名称及版本（如 `Chrome/131.0.0.0`） |
-| `protocolVersion` | `string` | CDP 协议版本（如 `1.3`） |
-| `webSocketDebuggerUrl` | `string` | 调试器 WebSocket 地址 |
+| `browser` | `string` | 浏览器类型（如 `chromium`） |
+| `version` | `string` | 浏览器版本（如 `131.0.0.0`） |
 | `error` | `string` | 连接失败时的错误信息 |
 
 ### `tabs`
