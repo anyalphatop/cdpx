@@ -5,7 +5,7 @@ test('ping', async () => {
   const result = await cdpx.ping();
 
   expect(result.browser).toBeDefined();
-  expect(result.browserType).toBeDefined();
+  expect(result.browserType).toBe('chromium');
   expect(result.version).toBeDefined();
   expect(result.error).toBeUndefined();
 });
