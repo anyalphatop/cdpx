@@ -16,11 +16,11 @@ export class PingRunner {
         `http://${host}:${port}`,
         { timeout },
       );
-      const browser_type = browser.browserType().name();
+      const browserType = browser.browserType().name();
       const version = browser.version();
       await browser.close();
 
-      return { browser: browser_type, version };
+      return { browser: browserType, version };
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       return { error: message };
