@@ -2,6 +2,8 @@ import { config } from '../../config.js';
 import { getBrowser } from '../../cdp/browser.js';
 
 export interface PingResult {
+  host: string;
+  port: number;
   browser?: string;
   browserType?: string;
   version?: string;
@@ -27,10 +29,10 @@ export class PingRunner {
       const browserType = browser.browserType().name();
       const version = browser.version();
 
-      return { browser: url, browserType, version };
+      return { host, port, browser: url, browserType, version };
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
-      return { error: message };
+      return { host, port, error: message };
     }
   }
 }
