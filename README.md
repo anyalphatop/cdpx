@@ -31,8 +31,6 @@ CDPX_HOST=127.0.0.1 CDPX_PORT=9222 cdpx ping
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `host` | `string` | CDP host |
-| `port` | `number` | CDP port |
 | `browserType` | `string` | Browser type |
 | `version` | `string` | Browser version |
 | `error` | `string` | Error message if connection failed |
