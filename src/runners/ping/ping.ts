@@ -8,8 +8,17 @@ export interface PingResult {
   error?: string;
 }
 
+export interface PingParams {
+  host?: string;
+  port?: number;
+}
+
 export class PingRunner {
-  async run(): Promise<PingResult> {
+  async run(params?: PingParams): Promise<PingResult> {
+    // 用传入的参数覆盖全局 config，未传则保持原值
+    if (params?.host) config.cdp.host = params.host;
+    if (params?.port) config.cdp.port = params.port;
+
     const { host, port, timeout } = config.cdp;
     const url = `http://${host}:${port}`;
 
