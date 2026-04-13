@@ -43,7 +43,7 @@ export class DouyinVideoDownloadLinkRunner implements Runner<DouyinVideoDownload
         throw new Error('Download link not found');
       }, body);
 
-      return { link: downloadUrl as string };
+      return { link: downloadUrl };
     } finally {
       await page.close();
     }
