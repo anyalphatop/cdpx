@@ -7,7 +7,7 @@ const tab = new Command('tab').description('Browser tab management');
 const list = new Command('list').description('List all open browser tabs');
 list.action(async () => {
   const result = await new TabListRunner().run();
-  console.log(JSON.stringify(result, null, 2));
+  console.log(result);
 });
 
 const count = new Command('count').description('Count open browser tabs');
