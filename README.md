@@ -24,21 +24,23 @@ cdpx ping [options]
 
 | Option | Description | Default |
 |--------|-------------|---------|
-| `--host <host>` | CDP host | `localhost` |
-| `--port <port>` | CDP port | `9222` |
-| `--timeout <ms>` | Connection timeout in milliseconds | `5000` |
+| `-H, --host <host>` | CDP host | `localhost` |
+| `-p, --port <port>` | CDP port | `9222` |
 
 **Example:**
 
 ```bash
 cdpx ping
 cdpx ping --host 127.0.0.1 --port 9222
+cdpx ping -H 127.0.0.1 -p 9222
 ```
 
 **Result:**
 
 | Field | Type | Description |
 |-------|------|-------------|
+| `host` | `string` | CDP host |
+| `port` | `number` | CDP port |
 | `browser` | `string` | Connection URL |
 | `browserType` | `string` | Browser type |
 | `version` | `string` | Browser version |

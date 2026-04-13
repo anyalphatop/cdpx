@@ -24,21 +24,23 @@ cdpx ping [options]
 
 | 选项 | 说明 | 默认值 |
 |------|------|--------|
-| `--host <host>` | CDP 主机 | `localhost` |
-| `--port <port>` | CDP 端口 | `9222` |
-| `--timeout <ms>` | 连接超时时间（毫秒） | `5000` |
+| `-H, --host <host>` | CDP 主机 | `localhost` |
+| `-p, --port <port>` | CDP 端口 | `9222` |
 
 **示例：**
 
 ```bash
 cdpx ping
 cdpx ping --host 127.0.0.1 --port 9222
+cdpx ping -H 127.0.0.1 -p 9222
 ```
 
 **返回结果：**
 
 | 字段 | 类型 | 说明 |
 |------|------|------|
+| `host` | `string` | CDP 主机 |
+| `port` | `number` | CDP 端口 |
 | `browser` | `string` | 连接地址 |
 | `browserType` | `string` | 浏览器类型 |
 | `version` | `string` | 浏览器版本 |
