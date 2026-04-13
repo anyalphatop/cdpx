@@ -40,10 +40,10 @@ export class DouyinVideoDownloadLinkRunner implements Runner<DouyinVideoDownload
         for (const a of doc.querySelectorAll('a')) {
           if (a.textContent?.includes('Download MP4 [')) return a.href;
         }
-        return null;
+        throw new Error('Download link not found');
       }, body);
 
-      return { link: downloadUrl ?? '' };
+      return { link: downloadUrl as string };
     } finally {
       await page.close();
     }
