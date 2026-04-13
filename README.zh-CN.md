@@ -46,12 +46,16 @@ cdpx ping -H 127.0.0.1 -p 9222
 | `version` | `string` | 浏览器版本 |
 | `error` | `string` | 连接失败时的错误信息 |
 
-### `tabs`
+### `tab`
+
+标签页管理。
+
+#### `tab list`
 
 列出已连接 Chrome 浏览器中所有打开的标签页。
 
 ```bash
-cdpx tabs
+cdpx tab list
 ```
 
 **返回结果：**
@@ -60,10 +64,8 @@ cdpx tabs
 
 | 字段 | 类型 | 说明 |
 |------|------|------|
-| `id` | `string` | 标签页 ID |
 | `title` | `string` | 标签页标题 |
 | `url` | `string` | 标签页 URL |
-| `type` | `string` | 标签页类型（如 `page`、`background_page`） |
 
 ### `probe`
 

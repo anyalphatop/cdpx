@@ -46,12 +46,16 @@ cdpx ping -H 127.0.0.1 -p 9222
 | `version` | `string` | Browser version |
 | `error` | `string` | Error message if connection failed |
 
-### `tabs`
+### `tab`
+
+Browser tab management.
+
+#### `tab list`
 
 List all open tabs in the connected Chrome browser.
 
 ```bash
-cdpx tabs
+cdpx tab list
 ```
 
 **Result:**
@@ -60,10 +64,8 @@ Returns an array of tab objects.
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `id` | `string` | Tab ID |
 | `title` | `string` | Tab title |
 | `url` | `string` | Tab URL |
-| `type` | `string` | Tab type (e.g. `page`, `background_page`) |
 
 ### `probe`
 

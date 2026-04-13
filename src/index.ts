@@ -5,7 +5,7 @@ import { createRequire } from 'module';
 import { ping } from './commands/ping.js';
 import { probe } from './commands/probe.js';
 import { read } from './commands/read.js';
-import { tabs } from './commands/tabs.js';
+import { tab } from './commands/tab.js';
 import { domains } from './commands/domains.js';
 import { weibo } from './commands/weibo.js';
 import { x } from './commands/x.js';
@@ -25,7 +25,7 @@ program
 program.addCommand(ping);
 program.addCommand(probe);
 program.addCommand(read);
-program.addCommand(tabs);
+program.addCommand(tab);
 program.addCommand(domains);
 program.addCommand(weibo);
 program.addCommand(x);
