@@ -12,8 +12,7 @@ export interface DouyinVideoDownloadLinkResult {
 }
 
 export class DouyinVideoDownloadLinkRunner
-  implements Runner<DouyinVideoDownloadLinkParams, DouyinVideoDownloadLinkResult>
-{
+  implements Runner<DouyinVideoDownloadLinkParams, DouyinVideoDownloadLinkResult> {
   async run(params: DouyinVideoDownloadLinkParams): Promise<DouyinVideoDownloadLinkResult> {
     const context = await getContext();
     const page = await context.newPage();
