@@ -10,9 +10,6 @@ video
   .command('get-download-link')
   .description('Get the MP4 download link for a Douyin video')
   .argument('<url>', 'Douyin share URL')
-  .action(async (url: string) => {
-    const result = await new DouyinVideoDownloadLinkRunner().run({ url });
-    console.log(result);
-  });
+  .action(async (url: string) => console.log(await new DouyinVideoDownloadLinkRunner().run({ url })));
 
 export { douyin };
