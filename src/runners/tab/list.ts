@@ -1,5 +1,5 @@
 import type { Runner } from '../../runner.js';
-import { getBrowser } from '../../cdp/browser.js';
+import { getContext } from '../../cdp/browser.js';
 
 export interface Tab {
   title: string;
@@ -8,17 +8,13 @@ export interface Tab {
 
 export class TabListRunner implements Runner<void, Tab[]> {
   async run(): Promise<Tab[]> {
-    const browser = await getBrowser();
-    const tabs: Tab[] = [];
-    // 遍历所有 context 下的 page，收集标签页信息
-    for (const context of browser.contexts()) {
-      for (const page of context.pages()) {
-        tabs.push({
-          title: await page.title(),
-          url: page.url(),
-        });
-      }
-    }
-    return tabs;
+    const context = await getContext();
+    // 收集当前 context 下所有标签页信息
+    return Promise.all(
+      context.pages().map(async (page) => ({
+        title: await page.title(),
+        url: page.url(),
+      }))
+    );
   }
 }
