@@ -3,7 +3,6 @@ import { config } from '../../config.js';
 import { getContext } from '../../cdp/browser.js';
 
 export interface DouyinVideoDownloadLinkParams {
-  // 抖音分享链接，支持 v.douyin.com 短链或完整链接
   url: string;
 }
 
