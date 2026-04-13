@@ -21,11 +21,11 @@ export class PingRunner {
     if (params?.host) config.cdp.host = params.host;
     if (params?.port) config.cdp.port = params.port;
 
-    const { host, port, timeout } = config.cdp;
+    const { host, port } = config.cdp;
     const url = `http://${host}:${port}`;
 
     try {
-      const browser = await getBrowser(timeout);
+      const browser = await getBrowser();
       const browserType = browser.browserType().name();
       const version = browser.version();
 

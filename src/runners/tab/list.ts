@@ -1,5 +1,4 @@
 import type { Runner } from '../../runner.js';
-import { config } from '../../config.js';
 import { getBrowser } from '../../cdp/browser.js';
 
 export interface Tab {
@@ -9,8 +8,7 @@ export interface Tab {
 
 export class TabListRunner implements Runner<void, Tab[]> {
   async run(): Promise<Tab[]> {
-    const { timeout } = config.cdp;
-    const browser = await getBrowser(timeout);
+    const browser = await getBrowser();
     const tabs: Tab[] = [];
     // 遍历所有 context 下的 page，收集标签页信息
     for (const context of browser.contexts()) {
