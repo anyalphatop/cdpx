@@ -5,16 +5,10 @@ import { TabCountRunner } from '../runners/tab/count.js';
 const tab = new Command('tab').description('Browser tab management');
 
 const list = new Command('list').description('List all open browser tabs');
-list.action(async () => {
-  const result = await new TabListRunner().run();
-  console.log(result);
-});
+list.action(async () => console.log(await new TabListRunner().run()));
 
 const count = new Command('count').description('Count open browser tabs');
-count.action(async () => {
-  const result = await new TabCountRunner().run();
-  console.log(result);
-});
+count.action(async () => console.log(await new TabCountRunner().run()));
 
 tab.addCommand(list);
 tab.addCommand(count);
