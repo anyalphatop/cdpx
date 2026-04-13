@@ -56,6 +56,22 @@ cdpx tab list
 | `title` | `string` | 标签页标题 |
 | `url` | `string` | 标签页 URL |
 
+#### `tab count`
+
+统计已连接 Chrome 浏览器中打开的标签页数量。
+
+```bash
+cdpx tab count
+```
+
+**返回结果：**
+
+返回一个整数。
+
+```
+5
+```
+
 ### `probe`
 
 测量指定 URL 到达 network idle 状态所需的时间。

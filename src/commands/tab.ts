@@ -9,6 +9,13 @@ list.action(async () => {
   console.log(JSON.stringify(result, null, 2));
 });
 
+const count = new Command('count').description('Count open browser tabs');
+count.action(async () => {
+  const tabs = await new TabListRunner().run();
+  console.log(tabs.length);
+});
+
 tab.addCommand(list);
+tab.addCommand(count);
 
 export { tab };

@@ -56,6 +56,22 @@ Returns an array of tab objects.
 | `title` | `string` | Tab title |
 | `url` | `string` | Tab URL |
 
+#### `tab count`
+
+Count the number of open tabs in the connected Chrome browser.
+
+```bash
+cdpx tab count
+```
+
+**Result:**
+
+Returns the number of open tabs as a plain integer.
+
+```
+5
+```
+
 ### `probe`
 
 Measure how long a URL takes to reach network idle.

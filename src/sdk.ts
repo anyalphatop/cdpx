@@ -22,6 +22,7 @@ export const cdpx = {
   ping: () => new PingRunner().run(),
   tab: {
     list: () => new TabListRunner().run(),
+    count: async () => (await new TabListRunner().run()).length,
   },
   weibo: {
     aisearch: (params: AiSearchParams) => new AiSearchRunner().run(params),
