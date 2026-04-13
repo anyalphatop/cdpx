@@ -1,6 +1,7 @@
 import { PingRunner } from './runners/ping/ping.js';
 import type { PingResult } from './runners/ping/ping.js';
 import { TabListRunner } from './runners/tab/list.js';
+import { TabCountRunner } from './runners/tab/count.js';
 import type { Tab } from './runners/tab/list.js';
 import { AiSearchRunner } from './runners/weibo/ai-search.js';
 import type { AiSearchParams } from './runners/weibo/ai-search.js';
@@ -22,7 +23,7 @@ export const cdpx = {
   ping: () => new PingRunner().run(),
   tab: {
     list: () => new TabListRunner().run(),
-    count: async () => (await new TabListRunner().run()).length,
+    count: () => new TabCountRunner().run(),
   },
   weibo: {
     aisearch: (params: AiSearchParams) => new AiSearchRunner().run(params),

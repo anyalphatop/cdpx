@@ -1,5 +1,6 @@
 import { Command } from 'commander';
 import { TabListRunner } from '../runners/tab/list.js';
+import { TabCountRunner } from '../runners/tab/count.js';
 
 const tab = new Command('tab').description('Browser tab management');
 
@@ -11,8 +12,8 @@ list.action(async () => {
 
 const count = new Command('count').description('Count open browser tabs');
 count.action(async () => {
-  const tabs = await new TabListRunner().run();
-  console.log(tabs.length);
+  const result = await new TabCountRunner().run();
+  console.log(result);
 });
 
 tab.addCommand(list);
