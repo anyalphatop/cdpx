@@ -5,6 +5,9 @@ import { config } from '../src/config.js';
 test('ping', async () => {
   const result = await cdpx.ping();
 
+  expect(result.host).toBe(config.cdp.host);
+  expect(result.port).toBe(config.cdp.port);
+
   expect(result.browser).toMatch(/^http/);
   expect(result.browser).toContain(config.cdp.host);
   expect(result.browser).toContain(String(config.cdp.port));
