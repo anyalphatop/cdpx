@@ -17,6 +17,13 @@ export async function getBrowser(): Promise<Browser> {
   return browser;
 }
 
+export async function getContext() {
+  const browser = await getBrowser();
+  const context = browser.contexts()[0];
+  if (!context) throw new Error('No browser context available');
+  return context;
+}
+
 export async function closeBrowser(): Promise<void> {
   if (browser) await browser.close();
 }

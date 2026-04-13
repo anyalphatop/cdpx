@@ -1,6 +1,6 @@
 import type { Runner } from '../../runner.js';
 import { config } from '../../config.js';
-import { getBrowser } from '../../cdp/browser.js';
+import { getContext } from '../../cdp/browser.js';
 
 export interface DouyinVideoDownloadLinkParams {
   // 抖音分享链接，支持 v.douyin.com 短链或完整链接
@@ -13,9 +13,7 @@ export interface DouyinVideoDownloadLinkResult {
 
 export class DouyinVideoDownloadLinkRunner implements Runner<DouyinVideoDownloadLinkParams, DouyinVideoDownloadLinkResult> {
   async run(params: DouyinVideoDownloadLinkParams): Promise<DouyinVideoDownloadLinkResult> {
-    // 获取共享 browser 实例，避免每次调用重复建立 CDP 连接
-    const browser = await getBrowser();
-    const context = browser.contexts()[0] ?? await browser.newContext();
+    const context = await getContext();
     const page = await context.newPage();
     try {
       await page.goto('https://savetik.co/en2', { waitUntil: 'load' });
