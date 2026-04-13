@@ -33,7 +33,6 @@ CDPX_HOST=127.0.0.1 CDPX_PORT=9222 cdpx ping
 |------|------|------|
 | `host` | `string` | CDP 主机 |
 | `port` | `number` | CDP 端口 |
-| `browser` | `string` | 连接地址 |
 | `browserType` | `string` | 浏览器类型 |
 | `version` | `string` | 浏览器版本 |
 | `error` | `string` | 连接失败时的错误信息 |

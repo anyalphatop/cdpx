@@ -8,10 +8,6 @@ test('ping', async () => {
   expect(result.host).toBe(config.cdp.host);
   expect(result.port).toBe(config.cdp.port);
 
-  expect(result.browser).toMatch(/^http/);
-  expect(result.browser).toContain(config.cdp.host);
-  expect(result.browser).toContain(String(config.cdp.port));
-
   expect(result.browserType).toBe('chromium');
   expect(result.version).toBeDefined();
   expect(result.error).toBeUndefined();
