@@ -1,5 +1,5 @@
 import { PingRunner } from './runners/ping/ping.js';
-import type { PingResult, PingParams } from './runners/ping/ping.js';
+import type { PingResult } from './runners/ping/ping.js';
 import { TabListRunner } from './runners/tab/list.js';
 import type { Tab } from './runners/tab/list.js';
 import { AiSearchRunner } from './runners/weibo/ai-search.js';
@@ -16,10 +16,10 @@ import type { DouyinVideoDownloadLinkParams, DouyinVideoDownloadLinkResult } fro
 import { config } from './config.js';
 
 export { config };
-export type { PingResult, PingParams, Tab, PostParams, XReadParams, XReadResult, XPostContent, XCommentContent, XPostsParams, XPost, DouyinVideoDownloadLinkParams, DouyinVideoDownloadLinkResult };
+export type { PingResult, Tab, PostParams, XReadParams, XReadResult, XPostContent, XCommentContent, XPostsParams, XPost, DouyinVideoDownloadLinkParams, DouyinVideoDownloadLinkResult };
 
 export const cdpx = {
-  ping: (params?: PingParams) => new PingRunner().run(params),
+  ping: () => new PingRunner().run(),
   tab: {
     list: () => new TabListRunner().run(),
   },

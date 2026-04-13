@@ -17,22 +17,14 @@ npm install -g @anyalphatop/cdpx
 测试与 Chrome CDP 服务器的连接。
 
 ```bash
-cdpx ping [options]
+cdpx ping
 ```
-
-**选项：**
-
-| 选项 | 说明 | 默认值 |
-|------|------|--------|
-| `-H, --host <host>` | CDP 主机 | `localhost` |
-| `-p, --port <port>` | CDP 端口 | `9222` |
 
 **示例：**
 
 ```bash
 cdpx ping
-cdpx ping --host 127.0.0.1 --port 9222
-cdpx ping -H 127.0.0.1 -p 9222
+CDPX_HOST=127.0.0.1 CDPX_PORT=9222 cdpx ping
 ```
 
 **返回结果：**
