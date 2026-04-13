@@ -1,5 +1,5 @@
+import { chromium } from 'playwright-core';
 import { config } from '../../config.js';
-import { getBrowser } from '../../cdp/browser.js';
 
 export interface PingResult {
   host: string;
@@ -17,17 +17,20 @@ export interface PingParams {
 
 export class PingRunner {
   async run(params?: PingParams): Promise<PingResult> {
-    // 用传入的参数覆盖全局 config，未传则保持原值
-    if (params?.host) config.cdp.host = params.host;
-    if (params?.port) config.cdp.port = params.port;
-
-    const { host, port } = config.cdp;
+    // 优先使用传入参数，未传则回退到全局 config，不修改全局配置
+    const host = params?.host ?? config.cdp.host;
+    const port = params?.port ?? config.cdp.port;
+    const { timeout } = config.cdp;
     const url = `http://${host}:${port}`;
 
     try {
-      const browser = await getBrowser();
-      const browserType = browser.browserType().name();
-      const version = browser.version();
+      // ping 独立建立连接，不走共享单例，避免影响其他命令
+      const resp = await fetch(`${url}/json/version`, { signal: AbortSignal.timeout(timeout) });
+      const { webSocketDebuggerUrl } = await resp.json() as { webSocketDebuggerUrl: string };
+      const b = await chromium.connectOverCDP(webSocketDebuggerUrl, { timeout });
+      const browserType = b.browserType().name();
+      const version = b.version();
+      await b.close();
 
       return { host, port, browser: url, browserType, version };
     } catch (err) {
