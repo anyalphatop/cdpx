@@ -308,6 +308,8 @@ Returns a JSON object with the following fields.
 
 | Field | Type | Description |
 |-------|------|-------------|
+| `url` | `string` | Extracted share URL |
+| `token` | `string` | Share token extracted from the URL |
 | `link` | `string` | Direct MP4 download URL |
 
 ### `weibo`

@@ -308,6 +308,8 @@ cdpx douyin video get-download-link "https://v.douyin.com/e57Hz45rJrA/"
 
 | 字段 | 类型 | 说明 |
 |------|------|------|
+| `url` | `string` | 提取出的分享链接 |
+| `token` | `string` | 从 URL 中提取的分享 token |
 | `link` | `string` | MP4 直链下载地址 |
 
 ### `weibo`
