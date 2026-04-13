@@ -1,6 +1,6 @@
 {
   "name": "@anyalphatop/cdpx",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Make any website programmable via Chrome CDP.",
   "main": "dist/main.js",
   "types": "dist/main.d.ts",
