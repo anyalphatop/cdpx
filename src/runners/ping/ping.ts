@@ -1,22 +1,16 @@
 import { getBrowser } from '../../cdp/browser.js';
 
 export interface PingResult {
-  browserType?: string;
-  version?: string;
-  error?: string;
+  browserType: string;
+  version: string;
 }
 
 export class PingRunner {
   async run(): Promise<PingResult> {
-    try {
-      const browser = await getBrowser();
-      const browserType = browser.browserType().name();
-      const version = browser.version();
+    const browser = await getBrowser();
+    const browserType = browser.browserType().name();
+    const version = browser.version();
 
-      return { browserType, version };
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      return { error: message };
-    }
+    return { browserType, version };
   }
 }

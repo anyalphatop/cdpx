@@ -6,5 +6,4 @@ test('ping', async () => {
 
   expect(result.browserType).toBe('chromium');
   expect(result.version).toBeDefined();
-  expect(result.error).toBeUndefined();
 });
