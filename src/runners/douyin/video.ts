@@ -11,10 +11,13 @@ export interface DouyinVideoDownloadLinkResult {
   link: string;
 }
 
-export class DouyinVideoDownloadLinkRunner implements Runner<DouyinVideoDownloadLinkParams, DouyinVideoDownloadLinkResult> {
+export class DouyinVideoDownloadLinkRunner
+  implements Runner<DouyinVideoDownloadLinkParams, DouyinVideoDownloadLinkResult>
+{
   async run(params: DouyinVideoDownloadLinkParams): Promise<DouyinVideoDownloadLinkResult> {
     const context = await getContext();
     const page = await context.newPage();
+
     try {
       await page.goto('https://savetik.co/en2', { waitUntil: 'load' });
 
@@ -22,7 +25,8 @@ export class DouyinVideoDownloadLinkRunner implements Runner<DouyinVideoDownload
       await page.waitForSelector('#s_input', { timeout: config.cdp.readyTimeout });
 
       // 在页面上下文中调用 ajaxSearch 接口，自动携带 cookie
-      const body = new URLSearchParams({ q: params.url, lang: 'en', cftoken: '' }).toString();
+      const requestBody = new URLSearchParams({ q: params.url, lang: 'en', cftoken: '' }).toString();
+
       const downloadUrl = await page.evaluate(async (body) => {
         const res = await fetch('/api/ajaxSearch', {
           method: 'POST',
@@ -32,6 +36,7 @@ export class DouyinVideoDownloadLinkRunner implements Runner<DouyinVideoDownload
           },
           body,
         });
+
         const json = await res.json() as { status: string; data: string };
         if (json.status !== 'ok') throw new Error('ajaxSearch failed: ' + json.status);
 
@@ -40,8 +45,9 @@ export class DouyinVideoDownloadLinkRunner implements Runner<DouyinVideoDownload
         for (const a of doc.querySelectorAll('a')) {
           if (a.textContent?.includes('Download MP4 [')) return a.href;
         }
+
         throw new Error('Download link not found');
-      }, body);
+      }, requestBody);
 
       return { link: downloadUrl };
     } finally {
