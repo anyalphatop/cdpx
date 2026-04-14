@@ -64,7 +64,8 @@ export class DouyinVideoDownloadLinkRunner
           if (a.textContent?.includes('Download MP4 [')) return a.href;
         }
 
-        throw new Error('Download link not found');
+        // 打印响应 HTML 供调试，方便定位偶发失败原因
+        throw new Error('Download link not found. Response HTML: ' + json.data);
       }, requestBody);
 
       return { url, token, link };
