@@ -22,7 +22,7 @@ function extractUrl(input: string): string {
 
 // 从抖音短链中提取 share token，如 https://v.douyin.com/e57Hz45rJrA/ -> e57Hz45rJrA
 function extractToken(url: string): string {
-  const match = url.match(/\/([A-Za-z0-9]+)\/?$/);
+  const match = url.match(/\/([A-Za-z0-9_]+)\/?$/);
   if (!match?.[1]) throw new Error('Failed to extract token from URL');
   return match[1];
 }
